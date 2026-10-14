@@ -14,7 +14,7 @@ function render(){
 }
 function renderSteps(){
  if(!plan)return;
- const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\\//,''));
+ const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
  const sr=subnetAt(plan,0);
  for(let stage=0;stage<=5;stage++){
   renderWorksheet($('flsm-sheet-'+stage),{
