@@ -39,3 +39,21 @@ const themeButton=$('theme');
 try{if(localStorage.getItem('ipv4-theme')==='dark')document.body.classList.add('dark')}catch{}
 themeButton.addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem('ipv4-theme',document.body.classList.contains('dark')?'dark':'light')}catch{}});
 calculate();
+
+// Sélection de la difficulté : structure et classes reprises du manuel IPv4.
+const difficultyButtons=[...document.querySelectorAll('[data-training-difficulty]')];
+const launchTraining=document.getElementById('launch-training');
+const launchInfo=document.getElementById('training-launch-info');
+const difficultyNames={'1':'Avec Pépette','2':'Je me débrouille','3':'Je relève le défi'};
+let selectedDifficulty=null;
+difficultyButtons.forEach(button=>button.addEventListener('click',()=>{
+ selectedDifficulty=button.dataset.trainingDifficulty;
+ difficultyButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ launchTraining.disabled=false;
+ launchTraining.textContent='Lancer : Exercice complet + '+difficultyNames[selectedDifficulty];
+ launchInfo.textContent='';
+}));
+launchTraining?.addEventListener('click',()=>{
+ if(!selectedDifficulty)return;
+ launchInfo.textContent='Le parcours interactif « '+difficultyNames[selectedDifficulty]+' » sera intégré à la prochaine étape.';
+});
