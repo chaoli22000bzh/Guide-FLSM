@@ -22,6 +22,42 @@ function calculate(){
   plan=planSubnets(base,{method:'count',count});
   if(plan.prefix>=31)throw Error('Ce cours utilise des sous-réseaux avec des adresses réseau et broadcast distinctes : choisissez un découpage moins fin.');
   shown=0;
+  $('requested-count').textContent=String(count);
+  $('possible-count').textContent=String(plan.capacity);
+  $('free-count').textContent=String(plan.capacity-count);
+  const free=plan.capacity-count;
+  const allocation=$('flsm-allocation');
+  allocation.replaceChildren();
+  // Affichage limité pour garder une barre lisible, sans énumérer des milliers de sous-réseaux.
+  if(plan.capacity<=32){
+    allocation.style.gridTemplateColumns='repeat('+Math.min(plan.capacity,8)+',minmax(0,1fr))';
+    for(let n=0;n<plan.capacity;n++){
+      const cell=document.createElement('span');
+      cell.textContent=String(n);
+      cell.title='Sous-réseau '+n+(n<count?' attribué':' disponible');
+      if(n<count)cell.classList.add('is-assigned');
+      allocation.append(cell);
+    }
+  }else{
+    allocation.style.gridTemplateColumns='1fr';
+    const cell=document.createElement('span');
+    cell.textContent=count+' sous-réseaux attribués sur '+plan.capacity+' possibles';
+    cell.classList.add('is-assigned');
+    allocation.append(cell);
+  }
+  $('free-explanation').textContent=free+' sous-réseau(x) non attribué(s) : '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' adresses d’hôtes utilisables restent disponibles dans ces sous-réseaux.';
+  const borrowedBody=$('borrowed-rows');
+  borrowedBody.replaceChildren();
+  const borrowed=plan.prefix-base.prefix;
+  summaryIndices(count).forEach(n=>{
+    const tr=document.createElement('tr');
+    const bitText=borrowed? n.toString(2).padStart(borrowed,'0'):'(aucun)';
+    [String(n),bitText,'Sous-réseau '+n+' : '+bitText].forEach(v=>{
+      const td=document.createElement('td');td.textContent=v;tr.append(td);
+    });
+    borrowedBody.append(tr);
+  });
+  $('unused-hosts').textContent=free+' sous-réseau(x) non attribué(s) × '+usableHosts(plan.prefix).toLocaleString('fr-FR')+' hôtes utilisables = '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' hôtes utilisables non affectés.';
   $('result-initial').textContent='/'+base.prefix;
   $('result-bits').textContent=String(plan.prefix-base.prefix);
   $('result-prefix').textContent='/'+plan.prefix;
@@ -57,3 +93,6 @@ launchTraining?.addEventListener('click',()=>{
  if(!selectedDifficulty)return;
  launchInfo.textContent='Le parcours interactif « '+difficultyNames[selectedDifficulty]+' » sera intégré à la prochaine étape.';
 });
+
+const goFlsmTraining=$('go-flsm-training');
+goFlsmTraining?.addEventListener('click',()=>{const section=$('training-fold');section.open=true;section.scrollIntoView({behavior:'smooth',block:'start'});});
