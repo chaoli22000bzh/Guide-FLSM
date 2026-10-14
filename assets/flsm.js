@@ -1,21 +1,41 @@
-// Guide FLSM V0.1.0 - interaction transférée du guide IPv4
-let flsmShown=0;
-function updateFlsm(){
- const body=document.getElementById('flsm-rows');if(!body)return;
- body.innerHTML='';
- for(let n=0;n<4;n++){
-  const v=n*64;const tr=document.createElement('tr');
-  tr.innerHTML=`<td><b>${n}</b></td><td><code>${n.toString(2).padStart(2,'0')}</code></td><td><code>${v.toString(2).padStart(8,'0')}</code></td><td><code>${(v+63).toString(2).padStart(8,'0')}</code></td><td>${'192.168.10.'+v}</td><td>${'192.168.10.'+(v+63)}</td>`;
-  if(n>=flsmShown)tr.querySelectorAll('td').forEach((cell,i)=>{if(i>0)cell.textContent='—'});
-  body.appendChild(tr);
- }
- const next=document.getElementById('flsm-next');
- next.disabled=flsmShown===4;
- next.textContent=flsmShown===4?'Les 4 sous-réseaux sont visibles ✓':'Révéler un sous-réseau →';
+import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipv4-engine.js';
+const $=id=>document.getElementById(id);
+let plan=null,shown=0;
+function binary(address){return address.split('.').map(o=>Number(o).toString(2).padStart(8,'0')).join('.');}
+function render(){
+ if(!plan)return;
+ const count=plan.concernedCount,indices=summaryIndices(count),body=$('flsm-rows');body.replaceChildren();
+ $('shown-info').textContent=count<=6?`${count} sous-réseau(x) affiché(s)`:`${count} sous-réseaux demandés : les 3 premiers et les 3 derniers sont affichés (6 au total).`;
+ indices.forEach((n,i)=>{const sr=subnetAt(plan,n),tr=document.createElement('tr');const values=[String(n),binary(sr.address),sr.address,binary(sr.broadcast),sr.broadcast];values.forEach((v,j)=>{const td=document.createElement('td');if(j===0){const b=document.createElement('b');b.textContent=v;td.append(b);}else if(i<shown){if(j===1||j===3){const c=document.createElement('code');c.textContent=v;td.append(c);}else td.textContent=v;}else td.textContent='…';tr.append(td);});body.append(tr);});
+ $('flsm-next').disabled=shown>=indices.length;
+ $('flsm-next').textContent=shown>=indices.length?'Tous les sous-réseaux sont visibles':'Révéler un sous-réseau';
 }
-document.getElementById('flsm-next')?.addEventListener('click',()=>{flsmShown=Math.min(4,flsmShown+1);updateFlsm()});
-document.getElementById('flsm-reset')?.addEventListener('click',()=>{flsmShown=0;updateFlsm()});
-const themeButton=document.getElementById('theme');
+function calculate(){
+ $('error').textContent='';
+ try{
+  const prefix=$('base-prefix').value.trim().replace(/^\//,'');
+  const base=parseNetwork($('base-address').value.trim(),prefix);
+  if(base.address!==$('base-address').value.trim())throw Error('Indiquez l’adresse réseau initiale, pas une adresse d’hôte.');
+  if(!base.broadcast||base.broadcast!==$('base-broadcast').value.trim())throw Error('Le broadcast initial ne correspond pas au réseau et au préfixe fournis.');
+  const count=Number($('subnet-count').value);
+  if(!Number.isSafeInteger(count)||count<1)throw Error('Indiquez un nombre entier de sous-réseaux supérieur à zéro.');
+  plan=planSubnets(base,{method:'count',count});
+  if(plan.prefix>=31)throw Error('Ce cours utilise des sous-réseaux avec des adresses réseau et broadcast distinctes : choisissez un découpage moins fin.');
+  shown=0;
+  $('result-initial').textContent='/'+base.prefix;
+  $('result-bits').textContent=String(plan.prefix-base.prefix);
+  $('result-prefix').textContent='/'+plan.prefix;
+  $('result-capacity').textContent=`${count} sous-réseaux demandés, ${plan.capacity} sous-réseaux possibles avec ${plan.prefix-base.prefix} bit(s) emprunté(s).`;
+  const hostBits=32-plan.prefix;
+  $('hosts-formula').textContent=`2^(${hostBits}) - 2 = ${usableHosts(plan.prefix).toLocaleString('fr-FR')}`;
+  $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
+  render();
+ }catch(e){plan=null;$('flsm-rows').replaceChildren();$('error').textContent=e.message;}
+}
+$('calculate').addEventListener('click',calculate);
+$('flsm-next').addEventListener('click',()=>{if(plan){shown=Math.min(summaryIndices(plan.concernedCount).length,shown+1);render();}});
+$('flsm-reset').addEventListener('click',()=>{shown=0;render();});
+const themeButton=$('theme');
 try{if(localStorage.getItem('ipv4-theme')==='dark')document.body.classList.add('dark')}catch{}
-themeButton?.addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem('ipv4-theme',document.body.classList.contains('dark')?'dark':'light')}catch{}});
-updateFlsm();
+themeButton.addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem('ipv4-theme',document.body.classList.contains('dark')?'dark':'light')}catch{}});
+calculate();
