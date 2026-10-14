@@ -1,5 +1,5 @@
 import {renderWorksheet} from './guide-common.js';
-import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipv4-engine.js';
+import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null,shown=0,workIndex=0;
 const revealedLines=new Set();
