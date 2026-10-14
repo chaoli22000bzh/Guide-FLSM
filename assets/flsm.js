@@ -66,7 +66,7 @@ function calculate(){
   $('result-prefix').textContent='/'+plan.prefix;
   $('result-capacity').textContent=`${count} sous-réseaux demandés, ${plan.capacity} sous-réseaux possibles avec ${plan.prefix-base.prefix} bit(s) emprunté(s).`;
   const hostBits=32-plan.prefix;
-  $('hosts-formula').textContent=`2^(${hostBits}) - 2 = ${usableHosts(plan.prefix).toLocaleString('fr-FR')}`;
+  $('hosts-formula').replaceChildren(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(hostBits)}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
   $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
   render();
  }catch(e){plan=null;$('flsm-rows').replaceChildren();$('error').textContent=e.message;}
