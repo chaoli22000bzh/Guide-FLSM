@@ -1,3 +1,4 @@
+import {renderWorksheet} from './guide-common.js';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipv4-engine.js';
 const $=id=>document.getElementById(id);
 let plan=null,shown=0,workIndex=0;
@@ -11,62 +12,17 @@ function render(){
  $('flsm-next').disabled=shown>=indices.length;
  $('flsm-next').textContent=shown>=indices.length?'Tous les sous-réseaux sont visibles':'Révéler un sous-réseau';
 }
-function renderBitWorkspace(){
+function renderSteps(){
  if(!plan)return;
  const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\\//,''));
- const sr=subnetAt(plan,workIndex);
- const fixed=base.prefix,borrowed=plan.prefix-base.prefix;
- const net=ipv4ToNumber(sr.address),broadcast=ipv4ToNumber(sr.broadcast);
- const bitAt=(value,position)=>String((value >>> (31-position))&1);
- const wrap=$('flsm-bit-workspace');wrap.replaceChildren();
- const table=document.createElement('table');table.className='flsm-bits';
- const caption=document.createElement('caption');caption.textContent='Sous-réseau '+workIndex+' : je complète les cases de ma fiche';table.append(caption);
- const head=document.createElement('thead');
- const header=document.createElement('tr');
- const label=document.createElement('th');label.textContent='OCTETS';label.className='bit-row-name';header.append(label);
- for(let oct=0;oct<4;oct++){const th=document.createElement('th');th.colSpan=8;th.textContent=(oct+1)+'e octet';header.append(th);}
- head.append(header);
- const weights=document.createElement('tr');const wl=document.createElement('th');wl.textContent='Poids décimaux';wl.className='bit-row-name';weights.append(wl);
- for(let bit=0;bit<32;bit++){const th=document.createElement('th');th.textContent=String(2**(7-bit%8));th.className=(bit<fixed?'bit-fixed':bit<fixed+borrowed?'bit-borrowed':'bit-host')+(bit%8===0?' bit-octet-start':'');weights.append(th);}
- head.append(weights);table.append(head);
- const body=document.createElement('tbody');
- const rows=[
- ['Bits empruntés','borrowed'],
- ['Réseau (binaire)','network-binary'],
- ['Réseau (décimal)','network-decimal'],
- ['Broadcast (binaire)','broadcast-binary'],
- ['Broadcast (décimal)','broadcast-decimal']
- ];
- rows.forEach(([title,key])=>{
-  const tr=document.createElement('tr');const name=document.createElement('th');name.textContent=title;name.className='bit-row-name';tr.append(name);
-  for(let bit=0;bit<32;bit++){
-   const td=document.createElement('td');
-   td.className=(bit<fixed?'bit-fixed':bit<fixed+borrowed?'bit-borrowed':'bit-host')+(bit%8===0?' bit-octet-start':'');
-   const show=revealedLines.has(key);
-   if(key==='borrowed')td.textContent=bit>=fixed&&bit<fixed+borrowed?bitAt(net,bit):'';
-   else if(key==='network-binary'||key==='broadcast-binary')td.textContent=show?bitAt(key==='network-binary'?net:broadcast,bit):'·';
-   else if(bit%8===0){
-    if(show){const oct=(key==='network-decimal'?net:broadcast) >>> (24-8*Math.floor(bit/8)) &255;td.textContent=String(oct);td.colSpan=8;tr.append(td);}
-    else {td.textContent='…';td.colSpan=8;tr.append(td);}
-    bit+=7;continue;
-   }else continue;
-   tr.append(td);
-  }
-  body.append(tr);
- });
- table.append(body);wrap.append(table);
- document.querySelectorAll('.flsm-reveal-line').forEach(button=>{
-  const visible=revealedLines.has(button.dataset.flsmLine);
-  button.setAttribute('aria-pressed',String(visible));
-  button.textContent=(visible?'Masquer':'Afficher')+' la ligne '+({'network-binary':'réseau en binaire','network-decimal':'réseau en décimal','broadcast-binary':'broadcast en binaire','broadcast-decimal':'broadcast en décimal'}[button.dataset.flsmLine]);
- });
+ const sr=subnetAt(plan,0);
+ for(let stage=0;stage<=5;stage++){
+  renderWorksheet($('flsm-sheet-'+stage),{
+   initialPrefix:base.prefix,subnetPrefix:plan.prefix,
+   network:sr.address,broadcast:sr.broadcast,subnetNumber:0,stage
+  });
+ }
 }
-$('flsm-work-subnet').addEventListener('change',e=>{workIndex=Number(e.target.value);revealedLines.clear();renderBitWorkspace();});
-document.querySelectorAll('.flsm-reveal-line').forEach(button=>button.addEventListener('click',()=>{
- const key=button.dataset.flsmLine;
- if(revealedLines.has(key))revealedLines.delete(key);else revealedLines.add(key);
- renderBitWorkspace();
-}));
 function calculate(){
  $('error').textContent='';
  try{
@@ -114,15 +70,7 @@ function calculate(){
     });
     borrowedBody.append(tr);
   });
-  const workSelect=$('flsm-work-subnet');
-  workSelect.replaceChildren();
-  summaryIndices(count).forEach(n=>{
-    const option=document.createElement('option');option.value=String(n);option.textContent='Sous-réseau '+n;workSelect.append(option);
-  });
-  workIndex=summaryIndices(count)[0]??0;
-  revealedLines.clear();
-  workSelect.value=String(workIndex);
-  renderBitWorkspace();
+  renderSteps();
   $('unused-hosts').textContent=free+' sous-réseau(x) non attribué(s) × '+usableHosts(plan.prefix).toLocaleString('fr-FR')+' hôtes utilisables = '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' hôtes utilisables non affectés.';
   $('result-initial').textContent='/'+base.prefix;
   $('result-bits').textContent=String(plan.prefix-base.prefix);
