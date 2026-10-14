@@ -10,7 +10,7 @@ export function renderWorksheet(target,{initialPrefix,subnetPrefix,network,broad
  const h=document.createElement('tr');const corner=document.createElement('th');corner.className='';corner.textContent='Octets';h.append(corner);
  for(let oct=0;oct<4;oct++){const cell=document.createElement('th');cell.colSpan=8;cell.className='octet octet-'+(oct+1);cell.textContent=(oct+1)+(oct===0?'er':'e')+' octet';h.append(cell);}head.append(h);
  const weights=document.createElement('tr');const wlabel=document.createElement('th');wlabel.textContent='Poids des bits';weights.append(wlabel);
- for(let i=0;i<32;i++){const c=document.createElement('th');c.textContent=String(2**(7-i%8));c.className='weight';weights.append(c);}head.append(weights);const exponents=document.createElement('tr');const elabel=document.createElement('th');elabel.textContent='Puissances de 2';exponents.append(elabel);for(let i=0;i<32;i++){const cell=document.createElement('th');cell.className='weight';cell.append(document.createTextNode('2'));const sup=document.createElement('sup');sup.textContent=String(7-i%8);cell.append(sup);exponents.append(cell);}head.append(exponents);table.append(head);
+ for(let i=0;i<32;i++){const c=document.createElement('th');c.textContent=String(2**(7-i%8));c.className='weight'+(i>=initialPrefix&&i<subnetPrefix?' flsm-borrowed-head':'')+(i===initialPrefix-1?' flsm-initial-boundary':'')+(i===subnetPrefix-1?' flsm-new-boundary':'');weights.append(c);}head.append(weights);const exponents=document.createElement('tr');const elabel=document.createElement('th');elabel.textContent='Puissances de 2';exponents.append(elabel);for(let i=0;i<32;i++){const cell=document.createElement('th');cell.className='weight'+(i>=initialPrefix&&i<subnetPrefix?' flsm-borrowed-head':'')+(i===initialPrefix-1?' flsm-initial-boundary':'')+(i===subnetPrefix-1?' flsm-new-boundary':'');cell.append(document.createTextNode('2'));const sup=document.createElement('sup');sup.textContent=String(7-i%8);cell.append(sup);exponents.append(cell);}head.append(exponents);table.append(head);
  
  const body=document.createElement('tbody');
  const rows=[['Réseau (binaire)',networkBits,2],['Réseau (décimal)',network,3],['Broadcast (binaire)',broadcastBits,4],['Broadcast (décimal)',broadcast,5]];
@@ -21,7 +21,7 @@ export function renderWorksheet(target,{initialPrefix,subnetPrefix,network,broad
    for(let oct=0;oct<4;oct++){const cell=document.createElement('td');cell.colSpan=8;cell.className='weight';cell.textContent=stage>=required?octets[oct]:'·';tr.append(cell);}
   }else{
    for(let i=0;i<32;i++){
-    const cell=document.createElement('td');cell.className=(i<initialPrefix?'network':i<subnetPrefix?'hostpart':'hostpart')+(i===subnetPrefix-1?' split':'');
+    const cell=document.createElement('td');cell.className=(i<initialPrefix?'network':i<subnetPrefix?'flsm-borrowed-cell':'hostpart')+(i===initialPrefix-1?' flsm-initial-boundary':'')+(i===subnetPrefix-1?' flsm-new-boundary':'');
     // Dès l'étape D, seuls les bits empruntés sont renseignés.
     cell.textContent=stage>=required?value[i]:(stage>=1&&i>=initialPrefix&&i<subnetPrefix?networkBits[i]:'·');
     tr.append(cell);
@@ -30,5 +30,5 @@ export function renderWorksheet(target,{initialPrefix,subnetPrefix,network,broad
   body.append(tr);
  }
  table.append(body);target.append(table);
- const legend=document.createElement('p');legend.className='hint';legend.textContent='Tableau construit avec les classes et la structure visuelle du manuel IPv4. Les colonnes empruntées sont repérées par la limite du nouveau préfixe. Les lignes se complètent au fil des étapes.';target.append(legend);
+ const legend=document.createElement('p');legend.className='hint';legend.textContent='Frontière initiale /'+initialPrefix+' : fin des bits du réseau de départ. Les '+borrowed+' colonnes orange sont empruntées aux bits hôtes. Nouvelle frontière /'+subnetPrefix+' : fin des bits réseau des sous-réseaux.';target.append(legend);
 }
