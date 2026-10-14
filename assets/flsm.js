@@ -59,17 +59,6 @@ function calculate(){
     allocation.append(cell);
   }
   $('free-explanation').textContent=free+' sous-réseau(x) non attribué(s) : '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' adresses d’hôtes utilisables restent disponibles dans ces sous-réseaux.';
-  const borrowedBody=$('borrowed-rows');
-  borrowedBody.replaceChildren();
-  const borrowed=plan.prefix-base.prefix;
-  summaryIndices(count).forEach(n=>{
-    const tr=document.createElement('tr');
-    const bitText=borrowed? n.toString(2).padStart(borrowed,'0'):'(aucun)';
-    [String(n),bitText,'Sous-réseau '+n+' : '+bitText].forEach(v=>{
-      const td=document.createElement('td');td.textContent=v;tr.append(td);
-    });
-    borrowedBody.append(tr);
-  });
   renderSteps();
   $('unused-hosts').textContent=free+' sous-réseau(x) non attribué(s) × '+usableHosts(plan.prefix).toLocaleString('fr-FR')+' hôtes utilisables = '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' hôtes utilisables non affectés.';
   $('result-initial').textContent='/'+base.prefix;
