@@ -12,6 +12,22 @@ function render(){
  $('flsm-next').disabled=shown>=indices.length;
  $('flsm-next').textContent=shown>=indices.length?'Tous les sous-réseaux sont visibles':'Révéler un sous-réseau';
 }
+function renderPowers(count){
+ const target=$('flsm-powers');if(!target)return;
+ target.replaceChildren();
+ const needed=Math.ceil(Math.log2(count));
+ for(let bits=0;bits<=needed;bits++){
+  const capacity=2**bits;
+  const item=document.createElement('div');
+  item.className='flsm-power-item'+(bits===needed?' is-sufficient':'');
+  const expression=document.createElement('strong');
+  expression.append(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(bits)}),document.createTextNode(' = '+capacity.toLocaleString('fr-FR')));
+  const status=document.createElement('span');
+  status.textContent=capacity>=count?'Suffisant':'Pas assez';
+  item.append(expression,status);target.append(item);
+ }
+ $('flsm-powers-explanation').textContent='Pour '+count+' sous-réseau(x), la première puissance de 2 suffisante est 2 puissance '+needed+' : j’emprunte '+needed+' bit(s).';
+}
 function renderSteps(){
  if(!plan)return;
  const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
@@ -63,6 +79,7 @@ function calculate(){
   $('unused-hosts').textContent=free+' sous-réseau(x) non attribué(s) × '+usableHosts(plan.prefix).toLocaleString('fr-FR')+' hôtes utilisables = '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' hôtes utilisables non affectés.';
   $('result-initial').textContent='/'+base.prefix;
   $('result-bits').textContent=String(plan.prefix-base.prefix);
+  renderPowers(count);
   $('result-prefix').textContent='/'+plan.prefix;
   $('result-capacity').textContent=`${count} sous-réseaux demandés, ${plan.capacity} sous-réseaux possibles avec ${plan.prefix-base.prefix} bit(s) emprunté(s).`;
   const hostBits=32-plan.prefix;
