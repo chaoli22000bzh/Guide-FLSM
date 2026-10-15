@@ -47,7 +47,7 @@ function calculate(){
   if(base.address!==$('base-address').value.trim())throw Error('Indiquez l’adresse réseau initiale, pas une adresse d’hôte.');
   if(!base.broadcast||base.broadcast!==$('base-broadcast').value.trim())throw Error('Le broadcast initial ne correspond pas au réseau et au préfixe fournis.');
   const count=Number($('subnet-count').value);
-  if(!Number.isSafeInteger(count)||count<1)throw Error('Indiquez un nombre entier de sous-réseaux supérieur à zéro.');
+  if(!Number.isSafeInteger(count)||count<2||count>16)throw Error('Choisis un nombre de sous-réseaux entre 2 et 16.');
   plan=planSubnets(base,{method:'count',count});
   if(plan.prefix>=31)throw Error('Ce cours utilise des sous-réseaux avec des adresses réseau et broadcast distinctes : choisissez un découpage moins fin.');
   shown=0;
@@ -88,7 +88,7 @@ function calculate(){
   render();
  }catch(e){plan=null;$('flsm-rows').replaceChildren();$('error').textContent=e.message;}
 }
-$('calculate').addEventListener('click',calculate);
+$('subnet-count').addEventListener('change',calculate);
 $('flsm-next').addEventListener('click',()=>{if(plan){shown=Math.min(summaryIndices(plan.concernedCount).length,shown+1);render();}});
 $('flsm-reset').addEventListener('click',()=>{shown=0;render();});
 const themeButton=$('theme');
