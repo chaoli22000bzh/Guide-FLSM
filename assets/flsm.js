@@ -179,12 +179,18 @@ goFlsmTraining?.addEventListener('click',()=>{const section=$('training-fold');s
  
 // Parcours Avec Pépette : tirage indépendant, sans historique ni liste ordonnée.
 // Le moteur IPcalc reste la seule source des calculs de sous-réseaux.
-let pepettePlan=null,pepetteSubnet=0,pepetteRow=0;
-const pepetteRows=[
- ['Réseau (binaire)','address',true],
- ['Réseau (décimal)','address',false],
- ['Broadcast (binaire)','broadcast',true],
- ['Broadcast (décimal)','broadcast',false]
+let pepettePlan=null,pepetteStep=0;
+const pepetteStages=['bits','prefix','initial-network','initial-broadcast','borrowed','binary','decimal','hosts'];
+const pepetteRows=[['Réseau (binaire)','address',true],['Réseau (décimal)','address',false],['Broadcast (binaire)','broadcast',true],['Broadcast (décimal)','broadcast',false]];
+const pepetteBits=ip=>ip.split('.').map(x=>Number(x).toString(2).padStart(8,'0')).join('');
+const pepetteTasks=()=>[
+ {kind:'number',label:'Nombre de bits empruntés',expected:pepettePlan.prefix-pepettePlan.base.prefix},
+ {kind:'number',label:'Nouveau CIDR (sans /)',expected:pepettePlan.prefix},
+ ...['address','broadcast'].map((key,i)=>({kind:'initial',label:i?'Broadcast initial (binaire)':'Réseau initial (binaire)',key})),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat(),
+ {kind:'number',label:'Nombre d’hôtes utilisables par sous-réseau',expected:usableHosts(pepettePlan.prefix)}
 ];
 function pepetteRandom(n){
  if(globalThis.crypto?.getRandomValues){const a=new Uint32Array(1);const limit=Math.floor(4294967296/n)*n;let v;do{crypto.getRandomValues(a);v=a[0];}while(v>=limit);return v%n;}
