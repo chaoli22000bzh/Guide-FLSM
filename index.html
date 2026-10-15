@@ -155,33 +155,33 @@ body.dark .flsm-paper-address .flsm-paper-initial-bar{box-shadow:inset -3px 0 #3
 body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff9b21}
 @media(max-width:850px) and (orientation:landscape){.flsm-paper-d{min-width:710px}.flsm-paper-grid .flsm-paper-label{width:120px;padding-left:5px;font-size:10px}}
 </style></head>
-<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.54</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
+<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.55</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
 <div class="layout"><div class="mobile-orientation-tip" role="note">Pour mieux lire les tableaux, tourne ton téléphone en mode paysage. Tu peux aussi continuer en portrait.</div><main>
 <section id="accueil" class="flsm-intro"><div class="flsm-orientation-tip" role="note">Pour un meilleur confort de lecture, passe ton appareil en mode paysage. Tu peux aussi continuer en mode portrait.</div><div class="flsm-example"><span class="flsm-example-label">MON EXEMPLE</span><div class="flsm-address-grid"><span class="flsm-row-label">Réseau initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">0<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">0</span><span class="flsm-prefix">/20</span><span class="flsm-row-label">Broadcast initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">15<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">255</span><span class="flsm-empty">/20</span></div></div><p>Je connais l’adresse réseau initiale, son préfixe et son broadcast. Je vais apprendre à découper ce réseau en plusieurs sous-réseaux de même taille.</p></section>
 <details class="chapter" id="fiche"><summary><span class="learn-icon icon-binary" aria-hidden="true">01</span> Je découpe mon réseau</summary><div class="chapter-body">
 <details class="subfold" open><summary>A · Pourquoi découper un réseau en sous-réseaux ?</summary><div class="fold-body"><div class="card lesson-step">
-<p>L'entreprise <strong>NovaTech</strong> dispose du réseau IPv4 <strong>172.16.0.0/20</strong>.</p>
+<p>L'entreprise <strong>NovaTech</strong> dispose du réseau IPv4 <strong>172.22.160.0/20</strong>.</p>
 <p>Elle utilise <strong>4 VLAN</strong> pour séparer ses équipements : Commercial, Atelier, Invités et Administration réseau.</p>
 <p>Chaque VLAN a besoin de sa propre plage d'adresses IPv4, tout en restant dans le réseau de l'entreprise.</p>
 <p>Pour répondre à ce besoin, le réseau initial est découpé en <strong>4 sous-réseaux</strong>.</p>
 <p>Le schéma ci-dessous montre le résultat de ce découpage.</p>
-<div class="novatech-diagram" aria-label="Le réseau initial 172.16.0.0/20 est découpé en quatre sous-réseaux IPv4 /22 associés aux VLAN 10, 20, 30 et 99">
-<div class="novatech-parent"><span class="novatech-company">Entreprise NovaTech</span><span>Réseau IPv4 initial</span><strong>172.16.<em>0</em>.0/20</strong></div>
+<div class="novatech-diagram" aria-label="Le réseau initial 172.22.160.0/20 est découpé en quatre sous-réseaux IPv4 /22 associés aux VLAN 10, 20, 30 et 99">
+<div class="novatech-parent"><span class="novatech-company">Entreprise NovaTech</span><span>Réseau IPv4 initial</span><strong>172.22.<em>160</em>.0/20</strong></div>
 <div class="novatech-connector" aria-hidden="true">↓</div>
 <p class="novatech-caption">Découpage en 4 sous-réseaux</p>
 <div class="novatech-vlans">
-<div class="novatech-vlan"><strong>VLAN 10</strong><span>Commercial</span><code>172.16.<em>0</em>.0/22</code></div>
-<div class="novatech-vlan"><strong>VLAN 20</strong><span>Atelier</span><code>172.16.<em>4</em>.0/22</code></div>
-<div class="novatech-vlan"><strong>VLAN 30</strong><span>Invités</span><code>172.16.<em>8</em>.0/22</code></div>
-<div class="novatech-vlan"><strong>VLAN 99</strong><span>Administration réseau</span><code>172.16.<em>12</em>.0/22</code></div>
+<div class="novatech-vlan"><strong>VLAN 10</strong><span>Commercial</span><code>172.22.<em>160</em>.0/22</code></div>
+<div class="novatech-vlan"><strong>VLAN 20</strong><span>Atelier</span><code>172.22.<em>164</em>.0/22</code></div>
+<div class="novatech-vlan"><strong>VLAN 30</strong><span>Invités</span><code>172.22.<em>168</em>.0/22</code></div>
+<div class="novatech-vlan"><strong>VLAN 99</strong><span>Administration réseau</span><code>172.22.<em>172</em>.0/22</code></div>
 </div></div>
 <div hidden aria-hidden="true"><span id="requested-count"></span><span id="possible-count"></span><span id="free-count"></span><span id="free-explanation"></span><span id="flsm-allocation"></span></div>
 </div></div></details>
 <details class="subfold"><summary>B · Je relève les quatre données nécessaires au découpage</summary><div class="fold-body">
 <div class="flsm-four-data">
-<div class="flsm-data-item"><span class="flsm-data-label">1. Adresse réseau initiale</span><strong>172.16.0.0</strong></div>
+<div class="flsm-data-item"><span class="flsm-data-label">1. Adresse réseau initiale</span><strong>172.22.160.0</strong></div>
 <div class="flsm-data-item"><span class="flsm-data-label">2. Préfixe initial</span><strong>/20</strong></div>
-<div class="flsm-data-item"><span class="flsm-data-label">3. Broadcast initial</span><strong>172.16.15.255</strong></div>
+<div class="flsm-data-item"><span class="flsm-data-label">3. Broadcast initial</span><strong>172.22.175.255</strong></div>
 <div class="flsm-data-item"><label class="flsm-data-label" for="subnet-count">4. Nombre de sous-réseaux demandés</label><select id="subnet-count"><option value="2">2 - puissance de 2</option><option value="4" selected>4 - puissance de 2</option><option value="6">6</option><option value="7">7</option><option value="8">8 - puissance de 2</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16 - puissance de 2</option></select></div>
 </div>
 <div class="flsm-b-instructions"><p>Je peux changer le nombre de sous-réseaux.</p><p>Les calculs et les tableaux ci-dessous changeront automatiquement.</p></div>
@@ -194,7 +194,7 @@ body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff
 <p class="flsm-pepette-takeaway"><strong>À retenir :</strong> lorsque le nombre demandé n'est pas une puissance de 2, je choisis la première puissance de 2 suffisante. Les sous-réseaux supplémentaires restent disponibles.</p>
 <p>Le même principe s'applique si je demande 3, 6, 7, 9 ou 10 sous-réseaux.</p>
 </div></details>
-<input id="base-address" type="hidden" value="172.16.0.0"><input id="base-broadcast" type="hidden" value="172.16.15.255"><input id="base-prefix" type="hidden" value="/20">
+<input id="base-address" type="hidden" value="172.22.160.0"><input id="base-broadcast" type="hidden" value="172.22.175.255"><input id="base-prefix" type="hidden" value="/20">
 <p id="error" class="flsm-error" role="alert" aria-live="polite"></p></div></details>
 <details class="subfold"><summary><span>C · Je calcule les <span class="flsm-bits-color">bits empruntés</span> et le <span class="flsm-prefix-color">préfixe de sous-réseau</span></span></summary><div class="fold-body">
 <div class="flsm-c-stage">
@@ -219,8 +219,8 @@ body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff
 <p class="flsm-prefix-color flsm-c-final-conclusion">Le préfixe de mes sous-réseaux est <strong id="flsm-c-final-prefix">/22</strong>.</p>
 </div>
 </div></details>
-<details class="subfold"><summary>D · Je reporte les informations de mon réseau initial</summary><div class="fold-body"><p>Je reporte l’adresse de mon réseau initial en binaire.<br>Je reporte aussi son adresse de broadcast en binaire.<br>Je place la barre bleue après les bits du préfixe initial.<br>Je compléterai les adresses décimales à la fin.</p><div class="table-scroll" id="flsm-sheet-0"></div></div></details>
-<details class="subfold"><summary>E · Je remplis les bits empruntés de tous les sous-réseaux</summary><div class="fold-body"><p>Je connais déjà le nombre de bits empruntés grâce à la partie C.<br>Je place la barre orange après ces colonnes.<br>Je remplis les colonnes orange en comptant en binaire : 00, 01, 10, 11 pour deux bits.<br>Les mêmes bits empruntés apparaissent sur les lignes réseau et broadcast de chaque sous-réseau.</p><p id="flsm-e-explanation" class="hint"></p><div class="table-scroll" id="flsm-sheet-1"></div><details id="flsm-e-last-guide" class="flsm-pepette flsm-pepette-e"><summary><img class="flsm-pepette-photo" src="https://raw.githubusercontent.com/chaoli22000bzh/Manuel-Adressage-IPv4/main/assets/pepette.webp" alt="Pépette, bouledogue de CyberNet Rennes" loading="lazy"><span>L’astuce de Pépette : comment trouver les 3 premiers et les 3 derniers sous-réseaux ?</span></summary><div class="flsm-pepette-body">
+<details class="subfold"><summary>D · Je reporte les informations de mon réseau initial</summary><div class="fold-body"><p>Je reporte les bits de la partie réseau de mon adresse initiale, jusqu'à la barre bleue.<br>Je reporte les mêmes bits pour l'adresse de broadcast, car ils appartiennent au même réseau.<br>Je laisse les bits hôtes vides. Je les compléterai plus tard.</p><div class="table-scroll" id="flsm-sheet-0"></div></div></details>
+<details class="subfold"><summary>E · Je remplis les bits empruntés de tous les sous-réseaux</summary><div class="fold-body"><p>Je connais déjà le nombre de bits empruntés grâce à la partie C.<br>La barre orange indique la fin des bits empruntés.<br>Je la place après les bits du réseau initial et les bits empruntés.<br>Je remplis les colonnes orange en comptant en binaire : 00, 01, 10, 11 pour deux bits.<br>Les mêmes bits empruntés apparaissent sur les lignes réseau et broadcast de chaque sous-réseau.</p><p id="flsm-e-explanation" class="hint"></p><div class="table-scroll" id="flsm-sheet-1"></div><details id="flsm-e-last-guide" class="flsm-pepette flsm-pepette-e"><summary><img class="flsm-pepette-photo" src="https://raw.githubusercontent.com/chaoli22000bzh/Manuel-Adressage-IPv4/main/assets/pepette.webp" alt="Pépette, bouledogue de CyberNet Rennes" loading="lazy"><span>L’astuce de Pépette : comment trouver les 3 premiers et les 3 derniers sous-réseaux ?</span></summary><div class="flsm-pepette-body">
 <h4>1. Je comprends la méthode</h4>
 <p>Pour les 3 premiers, je commence à 0 et je prends les numéros 0, 1 et 2.</p>
 <p>Pour les 3 derniers, je retire 1 au nombre de sous-réseaux demandés pour trouver le dernier numéro. Je prends ensuite les deux numéros précédents.</p>
@@ -239,4 +239,4 @@ body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff
 <div class="chapter-next"><p><strong>J'ai terminé la partie droite de ma fiche.</strong> Je peux maintenant choisir un niveau pour m'entraîner.</p><button type="button" id="go-flsm-training">Passer aux exercices</button></div>
 </div></details>
 <details class="chapter training-highlight" id="training-fold"><summary><span class="learn-icon icon-finish" aria-hidden="true">🏁</span> Je teste mes connaissances</summary><div class="chapter-body"><div class="training-setup"><h3 class="flsm-difficulty-title">Quelle difficulté je choisis ?</h3><div class="training-difficulties" role="group" aria-label="Choix de la difficulté"><button type="button" class="training-difficulty" data-training-difficulty="1" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span></span><span class="difficulty-description"><strong>Avec Pépette</strong><small>Exercice simple et guidé</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="2" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span></span><span class="difficulty-description"><strong>Je me débrouille</strong><small>Difficulté intermédiaire</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="3" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span><span></span></span><span class="difficulty-description"><strong>Je relève le défi</strong><small>Réseau et découpage plus complexes</small></span></button></div><div class="training-launch"><button type="button" id="launch-training" disabled>Je choisis ma difficulté</button><p id="training-launch-info" class="training-launch-info" aria-live="polite"></p></div></div></div></details>
-</main></div><script type="module" src="assets/flsm.js?v=0.1.54"></script></body></html>
+</main></div><script type="module" src="assets/flsm.js?v=0.1.55"></script></body></html>
