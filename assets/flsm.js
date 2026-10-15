@@ -1,17 +1,6 @@
-import {renderWorksheetPaperD} from './guide-common.js?v=0.1.43';
-import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipcalc-ipv4.js';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.44';
+import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
-let plan=null,shown=0,workIndex=0;
-const revealedLines=new Set();
-function binary(address){return address.split('.').map(o=>Number(o).toString(2).padStart(8,'0')).join('.');}
-function render(){
- if(!plan)return;
- const count=plan.concernedCount,indices=summaryIndices(count),body=$('flsm-rows');body.replaceChildren();
- $('shown-info').textContent=count<=6?`${count} sous-réseau(x) affiché(s)`:`${count} sous-réseaux demandés : les 3 premiers et les 3 derniers sont affichés (6 au total).`;
- indices.forEach((n,i)=>{const sr=subnetAt(plan,n),tr=document.createElement('tr');const values=[String(n),binary(sr.address),sr.address,binary(sr.broadcast),sr.broadcast];values.forEach((v,j)=>{const td=document.createElement('td');if(j===0){const b=document.createElement('b');b.textContent=v;td.append(b);}else if(i<shown){if(j===1||j===3){const c=document.createElement('code');c.textContent=v;td.append(c);}else td.textContent=v;}else td.textContent='…';tr.append(td);});body.append(tr);});
- $('flsm-next').disabled=shown>=indices.length;
- $('flsm-next').textContent=shown>=indices.length?'Tous les sous-réseaux sont visibles':'Révéler un sous-réseau';
-}
 function renderPowers(count){
  const target=$('flsm-powers');if(!target)return;
  target.replaceChildren();
@@ -68,7 +57,6 @@ function calculate(){
   if(!Number.isSafeInteger(count)||count<2||count>16)throw Error('Choisis un nombre de sous-réseaux entre 2 et 16.');
   plan=planSubnets(base,{method:'count',count});
   if(plan.prefix>=31)throw Error('Ce cours utilise des sous-réseaux avec des adresses réseau et broadcast distinctes : choisissez un découpage moins fin.');
-  shown=0;
   $('requested-count').textContent=String(count);
   $('possible-count').textContent=String(plan.capacity);
   $('free-count').textContent=String(plan.capacity-count);
@@ -104,13 +92,10 @@ function calculate(){
   const hostBits=32-plan.prefix;
   $('hosts-formula').replaceChildren(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(hostBits)}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
   $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
-  render();
- }catch(e){plan=null;$('flsm-rows').replaceChildren();$('error').textContent=e.message;}
+ }catch(e){plan=null;$('error').textContent=e.message;}
 }
 $('subnet-count').value='4';
 $('subnet-count').addEventListener('change',calculate);
-$('flsm-next').addEventListener('click',()=>{if(plan){shown=Math.min(summaryIndices(plan.concernedCount).length,shown+1);render();}});
-$('flsm-reset').addEventListener('click',()=>{shown=0;render();});
 const themeButton=$('theme');
 try{const savedTheme=localStorage.getItem('ipv4-theme');if(savedTheme==='dark'||(!savedTheme&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches))document.body.classList.add('dark')}catch{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.body.classList.add('dark')}
 themeButton.addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem('ipv4-theme',document.body.classList.contains('dark')?'dark':'light')}catch{}});
