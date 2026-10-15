@@ -76,7 +76,7 @@ export function renderWorksheetPaperD(target,{initialPrefix,subnetPrefix,baseNet
      if(i===initialPrefix-1)cls.push('flsm-paper-initial-bar');
      if(stage>=1&&i===subnetPrefix-1)cls.push('flsm-paper-subnet-bar');
      let value='';
-     if(stage===0)value=(isNetwork?initialNetworkBits:initialBroadcastBits)[i];
+     if(stage===0)value=i<initialPrefix?initialNetworkBits[i]:'';
      else if(stage===1){if(i<initialPrefix)value=initialNetworkBits[i];else if(i<subnetPrefix)value=networkBits[i];}
      else value=(isNetwork?networkBits:broadcastBits)[i];
      // Sur la fiche papier, les zéros restent implicites, sauf dans les bits empruntés.
