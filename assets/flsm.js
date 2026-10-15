@@ -1,4 +1,4 @@
-import {renderWorksheet,renderWorksheetPaperD} from './guide-common.js?v=0.1.41';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.42';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null,shown=0,workIndex=0;
@@ -42,15 +42,20 @@ function renderPowers(count){
 }
 function renderSteps(){
  if(!plan)return;
- const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
- const sr=subnetAt(plan,0);
- renderWorksheetPaperD($('flsm-sheet-0'),{initialPrefix:base.prefix,subnetPrefix:plan.prefix,subnetNumber:0});
- for(let stage=1;stage<=5;stage++){
-  renderWorksheet($('flsm-sheet-'+stage),{
+ const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\\//,''));
+ const indices=summaryIndices(plan.concernedCount);
+ const subnets=indices.map(number=>({number,...subnetAt(plan,number)}));
+ for(let stage=0;stage<=3;stage++){
+  renderWorksheetPaperD($('flsm-sheet-'+stage),{
    initialPrefix:base.prefix,subnetPrefix:plan.prefix,
-   network:sr.address,broadcast:sr.broadcast,subnetNumber:0,stage
+   baseNetwork:base.address,baseBroadcast:base.broadcast,
+   subnets,stage
   });
  }
+ const e=$('flsm-e-explanation');
+ if(e)e.textContent=plan.concernedCount<=6?
+  'Je remplis les '+(plan.prefix-base.prefix)+' bits empruntés pour chaque sous-réseau, dans l’ordre binaire.':
+  'Je remplis les '+(plan.prefix-base.prefix)+' bits empruntés pour les trois premiers et les trois derniers sous-réseaux. Les numéros intermédiaires ne sont pas oubliés.';
 }
 function calculate(){
  $('error').textContent='';
