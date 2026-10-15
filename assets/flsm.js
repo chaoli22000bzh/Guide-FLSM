@@ -93,7 +93,6 @@ function calculate(){
   $('result-bits').textContent=String(plan.prefix-base.prefix);
   renderPowers(count);
   $('result-prefix').textContent='/'+plan.prefix;
-  $('flsm-c-equation-result').textContent=base.prefix+' + '+(plan.prefix-base.prefix)+' = '+plan.prefix;
   $('flsm-c-final-prefix').textContent='/'+plan.prefix;
 
   const hostBits=32-plan.prefix;
