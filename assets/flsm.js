@@ -170,6 +170,7 @@ difficultyButtons.forEach(button=>button.addEventListener('click',()=>{
 launchTraining?.addEventListener('click',()=>{
  if(!selectedDifficulty)return;
  if(selectedDifficulty==='1'){startPepette();return;}
+ if(selectedDifficulty==='2'){startMedium();return;}
  launchInfo.textContent='Le parcours « '+difficultyNames[selectedDifficulty]+' » sera développé après validation du niveau Avec Pépette.';
 });
 
@@ -211,6 +212,146 @@ function pepetteExercise(){
   return candidate;
  }
  throw new Error("Impossible de générer l'exercice.");
+}
+
+
+/* Niveau intermédiaire : tableau commun, validation de chaque sous-réseau
+   sans révélation des bits ou des octets erronés. */
+let mediumPlan=null,mediumValidated=0,mediumInputs=[];
+function mediumExercise(){
+ for(let attempt=0;attempt<1200;attempt++){
+  const count=3+pepetteRandom(6),borrowed=Math.ceil(Math.log2(count));
+  const prefix=9+pepetteRandom(19);
+  if(prefix+borrowed>29||prefix%8===0||(prefix+borrowed)%8===0)continue;
+  const bytes=Array.from({length:4},()=>pepetteRandom(256));
+  const parsed=parseNetwork(bytes.join('.'),prefix);
+  const ones=pepetteBits(parsed.address).slice(0,prefix).split('1').length-1;
+  if(ones<Math.max(4,Math.floor(prefix*.3)))continue;
+  return planSubnets(parsed,{method:'count',count});
+ }
+ throw new Error('Impossible de générer un exercice intermédiaire.');
+}
+function startMedium(){
+ try{
+  mediumPlan=mediumExercise();mediumValidated=0;mediumInputs=[];
+  $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
+  $('pepette-feedback').textContent='';launchInfo.textContent='';
+  $('pepette-statement').replaceChildren();
+  for(const [label,value,cls] of [
+   ['Réseau initial',mediumPlan.base.address+'/'+mediumPlan.base.prefix,'pepette-address'],
+   ['Broadcast initial',mediumPlan.base.broadcast,''],
+   ['Sous-réseaux demandés',String(mediumPlan.concernedCount),'pepette-count']
+  ]){
+   const line=document.createElement('div');line.append(document.createTextNode(label+' : '));
+   const strong=document.createElement('strong');strong.className=cls;strong.textContent=value;line.append(strong);$('pepette-statement').append(line);
+  }
+  renderMedium();
+  $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(error){launchInfo.textContent=error.message;}
+}
+function renderMedium(){
+ const root=$('pepette-exercise');root.replaceChildren();
+ const plan=mediumPlan,base=plan.base;
+ $('pepette-progress').textContent='Je me débrouille : '+mediumValidated+' sous-réseau(x) validé(s) sur '+plan.concernedCount;
+ const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;};
+ const heading=make('h3','','Je me débrouille : mon exercice FLSM');root.append(heading);
+ const intro=make('p','','Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
+ root.append(intro);
+ const countRow=make('div','pepette-row');
+ countRow.append(make('strong','','Nombre de bits empruntés : '));
+ const borrowed=make('input','pepette-decimal');borrowed.type='number';borrowed.min='1';borrowed.max='4';borrowed.setAttribute('aria-label','Nombre de bits empruntés');
+ countRow.append(borrowed,make('strong','',' Nouveau CIDR : /'));
+ const cidr=make('input','pepette-decimal');cidr.type='number';cidr.min='1';cidr.max='30';cidr.setAttribute('aria-label','Nouveau CIDR');
+ countRow.append(cidr);
+ const checkPrefix=make('button','pepette-check','Vérifier mes calculs');checkPrefix.type='button';countRow.append(checkPrefix);
+ const prefixFeedback=make('p','');countRow.append(prefixFeedback);root.append(countRow);
+ const frame=make('div','flsm-paper-d');
+ const ref=make('table','flsm-paper-grid flsm-paper-reference'),head=make('tbody');
+ const oct=make('tr');oct.append(make('th','flsm-paper-label','OCTETS'));
+ for(let o=0;o<4;o++){const th=make('th','flsm-paper-octet',(o+1)+(o===0?'er':'e')+' octet');th.colSpan=8;oct.append(th);}head.append(oct);
+ for(const [label,powers] of [['Puissances de 2',true],['Poids décimaux',false]]){
+  const tr=make('tr');tr.append(make('th','flsm-paper-label',label));
+  for(let i=0;i<32;i++){
+   const th=make('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':''));
+   if(powers){th.append('2',make('sup','',String(7-i%8)));}else th.textContent=String(2**(7-i%8));
+   tr.append(th);
+  }head.append(tr);
+ }
+ ref.append(head);frame.append(ref);root.append(frame);
+ const blocks=[],entries=[];
+ for(let index=0;index<plan.concernedCount;index++){
+  const subnet=subnetAt(plan,index),block=make('div','flsm-paper-subnet'),title=make('div','flsm-paper-subnet-title');
+  title.append(make('strong','','Sous-réseau '+index));block.append(title);
+  const table=make('table','flsm-paper-grid flsm-paper-address'),body=make('tbody');
+  const inputs=[];
+  for(const [label,key,binary] of pepetteRows){
+   const tr=make('tr');tr.append(make('th','flsm-paper-label',label));
+   if(binary){
+    const expected=pepetteBits(subnet[key]);
+    for(let i=0;i<32;i++){
+     const td=make('td','flsm-paper-bit '+(i<base.prefix?'flsm-paper-network':i<plan.prefix?'flsm-paper-borrowed':'flsm-paper-host'));
+     if(i===base.prefix-1)td.classList.add('flsm-paper-initial-bar');
+     if(i===plan.prefix-1)td.classList.add('flsm-paper-subnet-bar');
+     const input=make('input','pepette-bit pepette-bit-toggle');
+     input.readOnly=true;input.setAttribute('role','button');input.setAttribute('aria-label',label+', bit '+(i+1));
+     input.dataset.bitIndex=String(i);input.style.cursor='pointer';
+     input.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setPepetteBit(input,input.value!=='1');}});
+     td.append(input);tr.append(td);inputs.push({input,expected:expected[i],binary:true});
+    }
+    const bits=inputs.slice(-32),row=tr;let drag=null;
+    const paint=(start,end,on)=>{for(const item of bits){const i=Number(item.input.dataset.bitIndex);if(i>=Math.min(start,end)&&i<=Math.max(start,end))setPepetteBit(item.input,on);}};
+    row.addEventListener('pointerdown',e=>{
+     const target=e.target.closest('input.pepette-bit');if(!target||e.button!==0||target.disabled)return;
+     e.preventDefault();const start=Number(target.dataset.bitIndex);
+     drag={id:e.pointerId,start,last:start,on:target.value!=='1',original:bits.map(item=>item.input.value)};
+     row.setPointerCapture(e.pointerId);paint(start,start,drag.on);
+    });
+    row.addEventListener('pointermove',e=>{
+     if(!drag||e.pointerId!==drag.id)return;
+     const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('input.pepette-bit');
+     if(!target||!row.contains(target))return;
+     const end=Number(target.dataset.bitIndex);if(end===drag.last)return;
+     bits.forEach((item,i)=>setPepetteBit(item.input,drag.original[i]==='1'));drag.last=end;paint(drag.start,end,drag.on);
+    });
+    const stop=e=>{if(drag&&drag.id===e.pointerId){drag=null;if(row.hasPointerCapture(e.pointerId))row.releasePointerCapture(e.pointerId);}};
+    row.addEventListener('pointerup',stop);row.addEventListener('pointercancel',stop);
+   }else{
+    const octets=subnet[key].split('.');
+    for(let o=0;o<4;o++){
+     const td=make('td','flsm-paper-decimal');td.colSpan=8;
+     const input=make('input','pepette-decimal');input.inputMode='numeric';input.maxLength=3;
+     input.setAttribute('aria-label',label+', octet '+(o+1));
+     input.addEventListener('input',()=>input.value=input.value.replace(/[^0-9]/g,'').slice(0,3));
+     td.append(input);tr.append(td);inputs.push({input,expected:octets[o],binary:false});
+    }
+   }body.append(tr);
+  }
+  table.append(body);block.append(table);
+  const controls=make('div','pepette-actions'),verify=make('button','pepette-check','Vérifier le sous-réseau '+index),feedback=make('p','');
+  verify.type='button';controls.append(verify,feedback);block.append(controls);
+  frame.append(block);blocks.push(block);entries.push(inputs);
+  verify.addEventListener('click',()=>{
+   const correct=inputs.every(({input,expected,binary})=>binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected));
+   if(!correct){feedback.className='pepette-error';feedback.textContent='Il reste une erreur dans ce sous-réseau. Je vérifie mes quatre lignes.';return;}
+   feedback.className='pepette-success';feedback.textContent='✓ Sous-réseau '+index+' validé.';
+   for(const {input} of inputs)input.disabled=true;
+   verify.disabled=true;mediumValidated++;
+   $('pepette-progress').textContent='Je me débrouille : '+mediumValidated+' sous-réseau(x) validé(s) sur '+plan.concernedCount;
+   if(mediumValidated===plan.concernedCount){
+    const success=make('p','pepette-success','✓ Bravo ! Mon tableau FLSM est terminé.');root.append(success);
+    renderFlsmHosts(2);
+   }
+  });
+ }
+ for(const block of blocks)block.hidden=true;
+ checkPrefix.addEventListener('click',()=>{
+  if(Number(borrowed.value)!==plan.prefix-base.prefix||Number(cidr.value)!==plan.prefix){
+   prefixFeedback.className='pepette-error';prefixFeedback.textContent='Je vérifie le nombre de bits empruntés et le nouveau CIDR.';return;
+  }
+  borrowed.disabled=true;cidr.disabled=true;checkPrefix.disabled=true;
+  prefixFeedback.className='pepette-success';prefixFeedback.textContent='✓ Calculs validés. Je complète mes sous-réseaux.';
+  blocks.forEach(block=>block.hidden=false);
+ });
 }
 
 function startPepette(){
