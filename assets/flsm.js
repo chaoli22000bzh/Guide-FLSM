@@ -185,7 +185,7 @@ const pepetteRows=[['Réseau (binaire)','address',true],['Réseau (décimal)','a
 const pepetteBits=ip=>ip.split('.').map(x=>Number(x).toString(2).padStart(8,'0')).join('');
 const pepetteTasks=()=>[
  {kind:'number',label:'Nombre de bits empruntés',expected:pepettePlan.prefix-pepettePlan.base.prefix},
- {kind:'number',label:'Nouveau CIDR (sans /)',expected:pepettePlan.prefix},
+ {kind:'number',label:'Nouveau CIDR',expected:pepettePlan.prefix},
  ...['address','broadcast'].map((key,i)=>({kind:'initial',label:i?'Broadcast initial (binaire)':'Réseau initial (binaire)',key})),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
@@ -220,7 +220,16 @@ function startPepette(){
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
   $('pepette-feedback').textContent='';launchInfo.textContent='';
   const base=pepettePlan.base;
-  $('pepette-statement').textContent='Réseau initial : '+base.address+' | CIDR initial : /'+base.prefix+' | Broadcast initial : '+base.broadcast+' | Sous-réseaux demandés : '+pepettePlan.concernedCount+'.';
+  $('pepette-statement').replaceChildren();
+  for(const [label,value,cls] of [
+   ['Réseau initial',base.address+'/'+base.prefix,'pepette-address'],
+   ['Broadcast initial',base.broadcast,''],
+   ['Sous-réseaux demandés',String(pepettePlan.concernedCount),'pepette-count']
+  ]){
+   const row=document.createElement('div');row.append(document.createTextNode(label+' : '));
+   const strong=document.createElement('strong');strong.className=cls;strong.textContent=value;row.append(strong);
+   $('pepette-statement').append(row);
+  }
   renderPepetteWorksheet();
   $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){launchInfo.textContent=e.message;}
@@ -238,7 +247,7 @@ function renderPepetteWorksheet(){
   line.append(title);
   if(previous.kind==='number'){
    const answer=document.createElement('span');answer.className='pepette-answer';
-   answer.textContent=' = '+previous.expected+(previous.label.includes('CIDR')?' (/'+previous.expected+')':'');
+   answer.textContent=' = '+(previous.label.includes('CIDR')?'/':'')+previous.expected;
    line.append(answer);
   }
   history.append(line);
@@ -254,6 +263,7 @@ function renderPepetteWorksheet(){
    if(input.value.trim()!==''&&Number(input.value)===active.expected){pepetteStep++;renderPepetteWorksheet();}
    else{feedback.textContent='Je vérifie mon calcul avant de continuer.';feedback.className='pepette-error';input.focus();}
   });
+  if(active.label==='Nouveau CIDR')prompt.append(document.createTextNode(' / '));
   prompt.append(document.createTextNode(' '),input,document.createTextNode(' '),check);
  }
  host.append(prompt);
@@ -293,7 +303,7 @@ function renderPepetteWorksheet(){
    if(binary){
     for(let i=0;i<32;i++){
      const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':pepetteStep>=4&&i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
-     if(pepetteStep>=3&&i===base.prefix-1)cls.push('flsm-paper-initial-bar');
+     if(pepetteStep>=2&&i===base.prefix-1)cls.push('flsm-paper-initial-bar');
      if(pepetteStep>=4&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
      const td=mk('td',cls.join(' '));
      const inInitial=i<base.prefix,inBorrowed=i>=base.prefix&&i<pepettePlan.prefix,inHost=i>=pepettePlan.prefix;
@@ -356,4 +366,24 @@ $('pepette-menu')?.addEventListener('click',()=>{
  difficultyButtons.forEach(button=>button.setAttribute('aria-pressed','false'));
  launchTraining.disabled=true;launchTraining.textContent='Je choisis ma difficulté';
  $('training-fold').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+const pepetteBinaryToggle=$('pepette-binary-toggle');
+const pepetteBinaryPanel=$('pepette-binary-panel');
+pepetteBinaryToggle?.addEventListener('click',()=>{
+ const show=pepetteBinaryPanel.hidden;
+ pepetteBinaryPanel.hidden=!show;
+ pepetteBinaryToggle.setAttribute('aria-expanded',String(show));
+ pepetteBinaryToggle.textContent=show?'Masquer le coup de patte':'Voir le coup de patte';
+ if(show&&!$('pepette-binary-rows').children.length){
+  const frag=document.createDocumentFragment();
+  for(let n=0;n<256;n++){
+   const row=document.createElement('tr');
+   for(const value of [String(n),n.toString(2).padStart(8,'0')]){
+    const cell=document.createElement('td');cell.textContent=value;row.append(cell);
+   }
+   frag.append(row);
+  }
+  $('pepette-binary-rows').append(frag);
+ }
 });
