@@ -27,7 +27,7 @@ function renderPowers(count){
   item.append(expression,status);target.append(item);
  }
  $('flsm-powers-explanation').textContent='2'+['⁰','¹','²','³','⁴','⁵'][needed]+' = '+capacity+' sous-réseaux possibles';
- $('flsm-c-bits').textContent="J'emprunte donc "+needed+' bits.';
+ $('flsm-c-bits').textContent="J'ai donc besoin de "+needed+' bits.';
  const bar=$('flsm-c-bar');bar.replaceChildren();
  const colors=['#2c729f','#228d85','#d19a38','#8876b4','#c46d78','#477fa4','#5c9d83','#9b7eae'];
  for(let i=0;i<capacity;i++){
@@ -93,6 +93,8 @@ function calculate(){
   $('result-bits').textContent=String(plan.prefix-base.prefix);
   renderPowers(count);
   $('result-prefix').textContent='/'+plan.prefix;
+  $('flsm-c-equation-result').textContent=base.prefix+' + '+(plan.prefix-base.prefix)+' = '+plan.prefix;
+  $('flsm-c-final-prefix').textContent='/'+plan.prefix;
 
   const hostBits=32-plan.prefix;
   $('hosts-formula').replaceChildren(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(hostBits)}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
