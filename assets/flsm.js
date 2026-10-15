@@ -92,7 +92,7 @@ $('subnet-count').addEventListener('change',calculate);
 $('flsm-next').addEventListener('click',()=>{if(plan){shown=Math.min(summaryIndices(plan.concernedCount).length,shown+1);render();}});
 $('flsm-reset').addEventListener('click',()=>{shown=0;render();});
 const themeButton=$('theme');
-try{if(localStorage.getItem('ipv4-theme')==='dark')document.body.classList.add('dark')}catch{}
+try{const savedTheme=localStorage.getItem('ipv4-theme');if(savedTheme==='dark'||(!savedTheme&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches))document.body.classList.add('dark')}catch{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.body.classList.add('dark')}
 themeButton.addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem('ipv4-theme',document.body.classList.contains('dark')?'dark':'light')}catch{}});
 calculate();
 
