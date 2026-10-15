@@ -126,7 +126,6 @@ function calculate(){
   }
   $('free-explanation').textContent=free+' sous-réseau(x) non attribué(s) : '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' adresses d’hôtes utilisables restent disponibles dans ces sous-réseaux.';
   renderSteps();
-  $('unused-hosts').textContent=free+' sous-réseau(x) non attribué(s) × '+usableHosts(plan.prefix).toLocaleString('fr-FR')+' hôtes utilisables = '+(free*usableHosts(plan.prefix)).toLocaleString('fr-FR')+' hôtes utilisables non affectés.';
   $('result-initial').textContent='/'+base.prefix;
   $('result-bits').textContent=String(plan.prefix-base.prefix);
   renderPowers(count);
@@ -134,7 +133,7 @@ function calculate(){
   $('flsm-c-final-prefix').textContent='/'+plan.prefix;
 
   const hostBits=32-plan.prefix;
-  $('hosts-formula').replaceChildren(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(hostBits)}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
+  $('hosts-formula').replaceChildren(document.createTextNode('Nb hôtes du sous-réseau = 2'),Object.assign(document.createElement('sup'),{textContent:'(32 - CIDR)'}),document.createTextNode(' - 2 = 2'),Object.assign(document.createElement('sup'),{textContent:'(32 - '+plan.prefix+')'}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
   $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
  }catch(e){plan=null;$('error').textContent=e.message;}
 }
