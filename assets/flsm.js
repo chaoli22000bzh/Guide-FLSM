@@ -248,7 +248,9 @@ function flsmHostButton(label,callback){
 }
 function renderFlsmHosts(level){
  flsmHostLevel=level;
- const host=$('pepette-exercise'),prefix=pepettePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
+ const exercise=$('pepette-exercise'),prefix=pepettePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
+ let host=$('flsm-host-calculation');
+ if(!host){host=document.createElement('section');host.id='flsm-host-calculation';host.className='card lesson-step';exercise.append(host);}
  host.replaceChildren();
  const heading=flsmHostElement('div','pepette-exercise-heading');
  heading.append(flsmHostElement('h3','', 'Calcul du nombre d’hôtes - '+difficultyNames[String(level)]),
@@ -341,9 +343,10 @@ function renderFlsmHosts(level){
 
 function setPepetteBit(input,on){input.value=on?'1':'';input.classList.toggle('is-one',on);input.setAttribute('aria-pressed',String(on));}
 function renderPepetteWorksheet(){
- const host=$('pepette-exercise');host.replaceChildren();
+ const host=$('pepette-exercise');
  const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
  if(!active){$('pepette-progress').textContent='Dernière étape : calcul du nombre d’hôtes utilisables';renderFlsmHosts(1);return;}
+ host.replaceChildren();
  $('pepette-progress').textContent='Étape '+(pepetteStep+1)+' sur '+tasks.length+' : '+active.label;
  const history=document.createElement('div');history.className='pepette-history';
  for(let i=0;i<pepetteStep;i++){
