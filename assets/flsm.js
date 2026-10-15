@@ -288,7 +288,7 @@ function renderPepetteWorksheet(){
    const editing= binary ? (isInitial&&current.kind==='initial'&&current.key===key ||
       current.index===index&&current.key===key&&(current.kind==='borrowed'||current.kind==='binary'))
       :current.kind==='decimal'&&current.index===index&&current.key===key;
-   const expected=pepetteBits(subnet[key]);
+   const expected=pepetteBits(current.kind==='initial'?base[key]:subnet[key]);
    const groups=[];
    if(binary){
     for(let i=0;i<32;i++){
@@ -306,7 +306,7 @@ function renderPepetteWorksheet(){
       input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);});
       td.append(input);interactive.push({input,expected:expected[i],octet:Math.floor(i/8),cell:td,borrowed:current.kind==='borrowed'});
      }else if(completed){
-      const val=expected[i];td.textContent=val==='0'&&!inBorrowed?'':val;
+      const val=(inInitial?pepetteBits(base[key]):pepetteBits(subnet[key]))[i];td.textContent=val==='0'&&!inBorrowed?'':val;
      }
      tr.append(td);
     }
