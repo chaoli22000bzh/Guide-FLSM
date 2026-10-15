@@ -81,7 +81,8 @@ export function renderWorksheetPaperD(target,{initialPrefix,subnetPrefix,baseNet
      else value=(isNetwork?networkBits:broadcastBits)[i];
      tr.append(make('td',cls.join(' '),value));
     }
-   }tbody.append(tr);
+   }
+   tbody.append(tr);
   }
   table.append(tbody);block.append(table);frame.append(block);
  }
