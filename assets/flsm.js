@@ -1,6 +1,7 @@
-import {renderWorksheetPaperD} from './guide-common.js?v=0.1.44';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.45';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
+let plan=null;
 function renderPowers(count){
  const target=$('flsm-powers');if(!target)return;
  target.replaceChildren();
