@@ -233,7 +233,7 @@ function mediumExercise(){
 }
 function startMedium(){
  try{
-  mediumPlan=mediumExercise();mediumValidated=0;mediumInputs=[];
+  mediumPlan=mediumExercise();mediumValidated=0;mediumInputs=[];flsmHostStep=0;flsmHostFeedback='';
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
   $('pepette-feedback').textContent='';launchInfo.textContent='';
   $('pepette-statement').replaceChildren();
@@ -389,7 +389,7 @@ function flsmHostButton(label,callback){
 }
 function renderFlsmHosts(level){
  flsmHostLevel=level;
- const exercise=$('pepette-exercise'),prefix=pepettePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
+ const exercise=$('pepette-exercise'),activePlan=level===2?mediumPlan:pepettePlan,prefix=activePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
  let host=$('flsm-host-calculation');
  if(!host){host=document.createElement('section');host.id='flsm-host-calculation';host.className='card lesson-step';exercise.append(host);}
  host.replaceChildren();
@@ -419,7 +419,7 @@ function renderFlsmHosts(level){
   const success=flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé '+result.toLocaleString('fr-FR')+' hôtes utilisables par sous-réseau.');
   work.append(success,flsmHostElement('p','','Tu peux donc attribuer une adresse IP à '+result.toLocaleString('fr-FR')+' équipements sur chaque sous-réseau.'));
   const actions=flsmHostElement('div','flsm-host-finish-actions');
-  const again=flsmHostButton('Nouvel exercice',startPepette);again.classList.add('flsm-host-finish-primary');
+  const again=flsmHostButton('Nouvel exercice',level===2?startMedium:startPepette);again.classList.add('flsm-host-finish-primary');
   const menu=flsmHostButton('Retour au menu',()=>{$('pepette-menu').click();});menu.classList.add('flsm-host-finish-secondary');
   actions.append(again,menu);work.append(actions);
  };
