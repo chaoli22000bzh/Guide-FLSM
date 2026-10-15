@@ -213,67 +213,132 @@ function pepetteExercise(){
  }
  throw new Error("Impossible de générer l'exercice.");
 }
+
 function startPepette(){
  try{
-  pepettePlan=pepetteExercise();pepetteSubnet=0;pepetteRow=0;
+  pepettePlan=pepetteExercise();pepetteStep=0;
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
   $('pepette-feedback').textContent='';launchInfo.textContent='';
-  $('pepette-statement').textContent='Je découpe le réseau '+pepettePlan.base.address+'/'+pepettePlan.base.prefix+' en '+pepettePlan.concernedCount+' sous-réseaux de même taille. Je complète les lignes une par une.';
+  const base=pepettePlan.base;
+  $('pepette-statement').textContent='Réseau initial : '+base.address+' | CIDR initial : /'+base.prefix+' | Broadcast initial : '+base.broadcast+' | Sous-réseaux demandés : '+pepettePlan.concernedCount+'.';
+  renderPepetteWorksheet();
   $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
-  renderPepetteRow();
  }catch(e){launchInfo.textContent=e.message;}
 }
-function renderPepetteRow(){
+function renderPepetteWorksheet(){
  const host=$('pepette-exercise');host.replaceChildren();
- if(pepetteSubnet>=pepettePlan.concernedCount){
-  const section=document.createElement('div');section.className='pepette-row';
-  section.append(Object.assign(document.createElement('h4'),{textContent:"Je calcule les hôtes utilisables par sous-réseau"}));
-  const input=document.createElement('input');input.type='number';input.min='0';input.id='pepette-host-answer';input.className='pepette-decimal';input.setAttribute('aria-label',"Nombre d'hôtes utilisables");
-  const button=document.createElement('button');button.type='button';button.textContent='Vérifier ma réponse';
-  button.addEventListener('click',()=>{
-   if(Number(input.value)===usableHosts(pepettePlan.prefix)&&input.value.trim()!==''){
-    $('pepette-feedback').textContent='Bonne réponse !';$('pepette-feedback').className='pepette-valid';
-    host.replaceChildren();$('pepette-finish').hidden=false;
-   }else{$('pepette-feedback').textContent='Je vérifie mon calcul : 2 puissance (32 - '+pepettePlan.prefix+') - 2.';$('pepette-feedback').className='pepette-error';}
-  });section.append(input,document.createTextNode(' '),button);host.append(section);
-  $('pepette-progress').textContent='Dernière étape : nombre d’hôtes par sous-réseau (/'+pepettePlan.prefix+').';return;
+ const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
+ if(!active){$('pepette-finish').hidden=false;$('pepette-progress').textContent='Exercice terminé.';return;}
+ $('pepette-progress').textContent='Étape '+(pepetteStep+1)+' sur '+tasks.length+' : '+active.label;
+ const prompt=document.createElement('div');prompt.className='pepette-row';
+ prompt.append(Object.assign(document.createElement('strong'),{textContent:'Je complète : '+active.label}));
+ const feedback=$('pepette-feedback');feedback.textContent='';feedback.className='';
+ if(active.kind==='number'){
+  const input=document.createElement('input');input.className='pepette-decimal';input.inputMode='numeric';input.type='number';input.min='0';input.setAttribute('aria-label',active.label);
+  const check=document.createElement('button');check.type='button';check.textContent='Vérifier ma réponse';
+  check.addEventListener('click',()=>{
+   if(input.value.trim()!==''&&Number(input.value)===active.expected){pepetteStep++;renderPepetteWorksheet();}
+   else{feedback.textContent='Je vérifie mon calcul avant de continuer.';feedback.className='pepette-error';input.focus();}
+  });
+  prompt.append(document.createTextNode(' '),input,document.createTextNode(' '),check);
  }
- const subnet=subnetAt(pepettePlan,pepetteSubnet),[label,key,binary]=pepetteRows[pepetteRow];
- $('pepette-progress').textContent='Sous-réseau '+(pepetteSubnet+1)+' sur '+pepettePlan.concernedCount+' - '+label+' - préfixe /'+pepettePlan.prefix;
- const section=document.createElement('div');section.className='pepette-row';
- section.append(Object.assign(document.createElement('h4'),{textContent:'Sous-réseau '+(pepetteSubnet+1)+' : '+label}));
- const inputs=[],octets=document.createElement('div');octets.className='pepette-octets';
- for(let o=0;o<4;o++){
-  const group=document.createElement('div');group.className='pepette-octet';group.dataset.octet=String(o);
-  for(let bit=0;bit<(binary?8:1);bit++){
-   const input=document.createElement('input');input.className=binary?'pepette-bit':'pepette-decimal';
-   input.inputMode='numeric';input.maxLength=binary?1:3;input.setAttribute('aria-label','Octet '+(o+1)+(binary?', bit '+(bit+1):''));
-   if(binary){input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);if(input.value&&inputs.length>o*8+bit+1)inputs[o*8+bit+1].focus();});}
-   else input.addEventListener('input',()=>{input.value=input.value.replace(/[^0-9]/g,'').slice(0,3);});
-   group.append(input);inputs.push(input);
-  }octets.append(group);
+ host.append(prompt);
+ const frame=document.createElement('div');frame.className='flsm-paper-d';
+ const reference=document.createElement('table');reference.className='flsm-paper-grid flsm-paper-reference';
+ const head=document.createElement('tbody');
+ const mk=(tag,cls,txt)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(txt!==undefined)el.textContent=txt;return el;};
+ const oct=mk('tr');oct.append(mk('th','flsm-paper-label','OCTETS'));
+ for(let o=0;o<4;o++){const th=mk('th','flsm-paper-octet',(o+1)+(o===0?'er':'e')+' octet');th.colSpan=8;oct.append(th);}head.append(oct);
+ for(const [title,powers] of [['Puissances de 2',true],['Poids décimaux',false]]){
+  const tr=mk('tr');tr.append(mk('th','flsm-paper-label',title));
+  for(let i=0;i<32;i++){
+   const cell=mk('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':'')+(i>=base.prefix&&i<pepettePlan.prefix?' flsm-paper-borrowed-head':''));
+   if(powers)cell.append(document.createTextNode('2'),mk('sup','',String(7-i%8)));
+   else cell.textContent=String(2**(7-i%8));
+   tr.append(cell);
+  }head.append(tr);
  }
- section.append(octets);
- const button=document.createElement('button');button.type='button';button.textContent='Vérifier ma ligne';
- button.addEventListener('click',()=>{
-  const expected=subnet[key].split('.').map(x=>binary?Number(x).toString(2).padStart(8,'0'):String(Number(x)));
-  let firstWrong=-1;
-  for(let o=0;o<4;o++){
-   const actual=inputs.slice(o*(binary?8:1),(o+1)*(binary?8:1)).map(x=>x.value).join('');
-   const wrong=binary?actual!==expected[o]:actual===''||Number(actual)!==Number(expected[o]);
-   octets.children[o].classList.toggle('pepette-octet-error',wrong);
-   if(wrong&&firstWrong<0)firstWrong=o;
+ reference.append(head);frame.append(reference);
+ const interactive=[];
+ function addBlock(title,subnet,index){
+  const block=mk('div','flsm-paper-subnet'),header=mk('div','flsm-paper-subnet-title');
+  header.append(mk('strong','',title));block.append(header);
+  const table=mk('table','flsm-paper-grid flsm-paper-address'),tbody=mk('tbody');
+  for(const [label,key,binary] of pepetteRows){
+   const tr=mk('tr'),name=mk('th','flsm-paper-label',label);tr.append(name);
+   const taskIndex=tasks.findIndex(t=>t.key===key&&t.index===index&&t.kind===(index===null?'initial':binary?'binary':'decimal'));
+   const borrowIndex=tasks.findIndex(t=>t.kind==='borrowed'&&t.index===index&&t.key===key);
+   const initialIndex=tasks.findIndex(t=>t.kind==='initial'&&t.key===key);
+   const isInitial=index===null;
+   const current=tasks[pepetteStep];
+   const editing= binary ? (isInitial&&current.kind==='initial'&&current.key===key ||
+      !isInitial&&current.index===index&&current.key===key&&(current.kind==='borrowed'||current.kind==='binary'))
+      :!isInitial&&current.kind==='decimal'&&current.index===index&&current.key===key;
+   const expected=pepetteBits(subnet[key]);
+   const groups=[];
+   if(binary){
+    for(let i=0;i<32;i++){
+     const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
+     if(i===base.prefix-1)cls.push('flsm-paper-initial-bar');
+     if(!isInitial&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
+     const td=mk('td',cls.join(' '));
+     const inInitial=i<base.prefix,inBorrowed=i>=base.prefix&&i<pepettePlan.prefix,inHost=i>=pepettePlan.prefix;
+     let completed=false,editable=false;
+     if(isInitial){completed=initialIndex<pepetteStep;editable=editing&&inInitial;}
+     else{
+      const initialDone=initialIndex<pepetteStep,borrowDone=borrowIndex<pepetteStep,binaryDone=taskIndex<pepetteStep;
+      completed=(inInitial&&initialDone)||(inBorrowed&&borrowDone)||(inHost&&binaryDone);
+      editable=editing&&(current.kind==='borrowed'?inBorrowed:inHost);
+     }
+     if(editable){
+      const input=mk('input','pepette-bit');input.inputMode='numeric';input.maxLength=1;input.setAttribute('aria-label',label+', bit '+(i+1));
+      input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);});
+      td.append(input);interactive.push({input,expected:expected[i],octet:Math.floor(i/8),cell:td,borrowed:current.kind==='borrowed'});
+     }else if(completed){
+      const val=expected[i];td.textContent=val==='0'&&!(inBorrowed&&!isInitial)?'':val;
+     }
+     tr.append(td);
+    }
+   }else{
+    for(let o=0;o<4;o++){
+     const td=mk('td','flsm-paper-decimal');td.colSpan=8;
+     if(editing){
+      const input=mk('input','pepette-decimal');input.inputMode='numeric';input.maxLength=3;input.setAttribute('aria-label',label+', octet '+(o+1));
+      input.addEventListener('input',()=>{input.value=input.value.replace(/[^0-9]/g,'').slice(0,3);});
+      td.append(input);interactive.push({input,expected:subnet[key].split('.')[o],octet:o,cell:td,decimal:true});
+     }else if(taskIndex>=0&&taskIndex<pepetteStep)td.textContent=subnet[key].split('.')[o];
+     tr.append(td);
+    }
+   }
+   tbody.append(tr);
   }
-  if(firstWrong>=0){
-   $('pepette-feedback').textContent='Je vérifie le '+(firstWrong+1)+(firstWrong===0?'er':'e')+' octet. Je corrige puis je vérifie ma ligne.';
-   $('pepette-feedback').className='pepette-error';inputs[firstWrong*(binary?8:1)].focus();return;
-  }
-  $('pepette-feedback').textContent='Ligne correcte !';$('pepette-feedback').className='pepette-valid';
-  pepetteRow++;if(pepetteRow===pepetteRows.length){pepetteRow=0;pepetteSubnet++;}
-  renderPepetteRow();
- });
- section.append(button);host.append(section);
- inputs[0]?.focus();
+  table.append(tbody);block.append(table);frame.append(block);
+ }
+ addBlock('Réseau initial',base,null);
+ for(let i=0;i<pepettePlan.concernedCount;i++)addBlock('Sous-réseau '+(i+1),subnetAt(pepettePlan,i),i);
+ host.append(frame);
+ if(interactive.length){
+  const check=mk('button','','Vérifier ma ligne');check.type='button';check.className='pepette-check';
+  check.addEventListener('click',()=>{
+   let wrongOctet=-1;
+   for(const item of interactive){
+    const value=item.input.value.trim();
+    const correct=item.decimal?value!==''&&Number(value)===Number(item.expected):
+     item.borrowed?value===item.expected:value===''||value===item.expected;
+    item.cell.classList.toggle('pepette-octet-error',!correct);
+    if(!correct&&wrongOctet<0)wrongOctet=item.octet;
+   }
+   if(wrongOctet>=0){
+    feedback.textContent='Je vérifie le '+(wrongOctet+1)+(wrongOctet===0?'er':'e')+' octet, puis je corrige ma ligne.';
+    feedback.className='pepette-error';
+    interactive.find(item=>item.octet===wrongOctet)?.input.focus();
+   }else{pepetteStep++;renderPepetteWorksheet();}
+  });
+  prompt.append(document.createTextNode(' '),check);
+ }
+ if(pepetteStep===tasks.length-1){
+  const help=mk('p','hint','Je calcule 2 puissance (32 - '+pepettePlan.prefix+') - 2.');prompt.append(help);
+ }
 }
 $('pepette-again')?.addEventListener('click',startPepette);
 $('pepette-menu')?.addEventListener('click',()=>{
