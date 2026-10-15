@@ -30,5 +30,5 @@ export function renderWorksheet(target,{initialPrefix,subnetPrefix,network,broad
   body.append(tr);
  }
  table.append(body);target.append(table);
- const legend=document.createElement('p');legend.className='hint';legend.textContent='Frontière initiale /'+initialPrefix+' : fin des bits du réseau de départ. Les '+borrowed+' colonnes orange sont empruntées aux bits hôtes. Nouvelle frontière /'+subnetPrefix+' : fin des bits réseau des sous-réseaux.';target.append(legend);
+
 }
