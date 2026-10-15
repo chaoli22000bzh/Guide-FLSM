@@ -34,7 +34,7 @@ function renderSteps(){
  if(!plan)return;
  const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
  const indices=summaryIndices(plan.concernedCount);
- const subnets=indices.map(number=>({number,...subnetAt(plan,number)}));
+ const subnets=indices.map(number=>({...subnetAt(plan,number),number}));
  for(let stage=0;stage<=3;stage++){
   renderWorksheetPaperD($('flsm-sheet-'+stage),{
    initialPrefix:base.prefix,subnetPrefix:plan.prefix,
