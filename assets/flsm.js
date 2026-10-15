@@ -266,7 +266,7 @@ function renderPepetteWorksheet(){
  for(const [title,powers] of [['Puissances de 2',true],['Poids décimaux',false]]){
   const tr=mk('tr');tr.append(mk('th','flsm-paper-label',title));
   for(let i=0;i<32;i++){
-   const cell=mk('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':'')+(i>=base.prefix&&i<pepettePlan.prefix?' flsm-paper-borrowed-head':''));
+   const cell=mk('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':'')+(pepetteStep>=2&&i>=base.prefix&&i<pepettePlan.prefix?' flsm-paper-borrowed-head':''));
    if(powers)cell.append(document.createTextNode('2'),mk('sup','',String(7-i%8)));
    else cell.textContent=String(2**(7-i%8));
    tr.append(cell);
@@ -280,36 +280,33 @@ function renderPepetteWorksheet(){
   const table=mk('table','flsm-paper-grid flsm-paper-address'),tbody=mk('tbody');
   for(const [label,key,binary] of pepetteRows){
    const tr=mk('tr'),name=mk('th','flsm-paper-label',label);tr.append(name);
-   const taskIndex=tasks.findIndex(t=>t.key===key&&t.index===index&&t.kind===(index===null?'initial':binary?'binary':'decimal'));
+   const taskIndex=tasks.findIndex(t=>t.key===key&&t.index===index&&t.kind===(binary?'binary':'decimal'));
    const borrowIndex=tasks.findIndex(t=>t.kind==='borrowed'&&t.index===index&&t.key===key);
    const initialIndex=tasks.findIndex(t=>t.kind==='initial'&&t.key===key);
-   const isInitial=index===null;
+   const isInitial=index===0;
    const current=tasks[pepetteStep];
    const editing= binary ? (isInitial&&current.kind==='initial'&&current.key===key ||
-      !isInitial&&current.index===index&&current.key===key&&(current.kind==='borrowed'||current.kind==='binary'))
-      :!isInitial&&current.kind==='decimal'&&current.index===index&&current.key===key;
+      current.index===index&&current.key===key&&(current.kind==='borrowed'||current.kind==='binary'))
+      :current.kind==='decimal'&&current.index===index&&current.key===key;
    const expected=pepetteBits(subnet[key]);
    const groups=[];
    if(binary){
     for(let i=0;i<32;i++){
-     const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
+     const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':pepetteStep>=2&&i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
      if(i===base.prefix-1)cls.push('flsm-paper-initial-bar');
-     if(!isInitial&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
+     if(pepetteStep>=2&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
      const td=mk('td',cls.join(' '));
      const inInitial=i<base.prefix,inBorrowed=i>=base.prefix&&i<pepettePlan.prefix,inHost=i>=pepettePlan.prefix;
      let completed=false,editable=false;
-     if(isInitial){completed=initialIndex<pepetteStep;editable=editing&&inInitial;}
-     else{
-      const initialDone=initialIndex<pepetteStep,borrowDone=borrowIndex<pepetteStep,binaryDone=taskIndex<pepetteStep;
-      completed=(inInitial&&initialDone)||(inBorrowed&&borrowDone)||(inHost&&binaryDone);
-      editable=editing&&(current.kind==='borrowed'?inBorrowed:inHost);
-     }
+     const initialDone=initialIndex<pepetteStep,borrowDone=borrowIndex<pepetteStep,binaryDone=taskIndex<pepetteStep;
+     completed=(inInitial&&initialDone)||(inBorrowed&&borrowDone)||(inHost&&binaryDone);
+     editable=editing&&(current.kind==='initial'?inInitial:current.kind==='borrowed'?inBorrowed:inHost);
      if(editable){
       const input=mk('input','pepette-bit');input.inputMode='numeric';input.maxLength=1;input.setAttribute('aria-label',label+', bit '+(i+1));
       input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);});
       td.append(input);interactive.push({input,expected:expected[i],octet:Math.floor(i/8),cell:td,borrowed:current.kind==='borrowed'});
      }else if(completed){
-      const val=expected[i];td.textContent=val==='0'&&!(inBorrowed&&!isInitial)?'':val;
+      const val=expected[i];td.textContent=val==='0'&&!inBorrowed?'':val;
      }
      tr.append(td);
     }
@@ -328,7 +325,6 @@ function renderPepetteWorksheet(){
   }
   table.append(tbody);block.append(table);frame.append(block);
  }
- addBlock('Réseau initial',base,null);
  for(let i=0;i<pepettePlan.concernedCount;i++)addBlock('Sous-réseau '+i,subnetAt(pepettePlan,i),i);
  host.append(frame);
  if(interactive.length){
