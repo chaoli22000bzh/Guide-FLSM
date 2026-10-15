@@ -281,18 +281,15 @@ function renderFlsmHosts(level){
    flsmHostButton('Retour à « Je teste mes connaissances »',()=>{$('pepette-menu').click();}));
  };
  if(level===1){
-  heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===3?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
+  heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===2?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
   let active=null;
   const valueField=expected=>{const input=field('Valeur à compléter dans la formule');input.dataset.expected=String(expected);active=input;return input;};
   formula.append(flsmHostElement('span','','Nb hôtes du sous-réseau ='));
   const sup=flsmHostElement('span');sup.append('(32 - ',flsmHostStep===0?valueField(prefix):String(prefix),')');
   formula.append(exponentBlock(sup),flsmHostElement('span','','− 2 ='));
-  if(flsmHostStep>=1){formula.append(exponentBlock(flsmHostStep===1?valueField(exp):String(exp)),flsmHostElement('span','','− 2 ='));}
-  
-  if(flsmHostStep>=2)formula.append(flsmHostStep===2?valueField(exp):flsmHostElement('span','',String(exp)));
-  if(flsmHostStep>=3)formula.append(flsmHostElement('span','','− 2'));
+  if(flsmHostStep>=1){formula.append(exponentBlock(flsmHostStep===1?valueField(exp):String(exp)),flsmHostElement('span','','− 2'));}
   work.append(formula);
-  if(flsmHostStep<3){
+  if(flsmHostStep<2){
    const feedback=flsmHostElement('p','pepette-hint',flsmHostFeedback);work.append(feedback);
    const verify=flsmHostButton('Vérifier',()=>{
     if(active.value.trim()===active.dataset.expected){flsmHostStep++;flsmHostFeedback='';renderFlsmHosts(1);host.querySelector('.pepette-hosts-formula input')?.focus({preventScroll:true});}
