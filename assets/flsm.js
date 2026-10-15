@@ -1,4 +1,4 @@
-import {renderWorksheetPaperD} from './guide-common.js?v=0.1.45';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.46';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null;
