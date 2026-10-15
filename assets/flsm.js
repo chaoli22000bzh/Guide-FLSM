@@ -483,7 +483,8 @@ function renderPepetteWorksheet(){
     const value=item.input.value.trim();
     const correct=item.decimal?value!==''&&Number(value)===Number(item.expected):
      (value===''||value==='0'?'0':value)===String(item.expected);
-    item.cell.classList.toggle('pepette-octet-error',!correct);
+    // Ne jamais signaler individuellement les bits incorrects : cela révèle la réponse.
+    item.cell.classList.remove('pepette-octet-error');
     if(!correct&&wrongOctet<0)wrongOctet=item.octet;
    }
    if(wrongOctet>=0){
