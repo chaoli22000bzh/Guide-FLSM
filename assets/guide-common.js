@@ -67,11 +67,11 @@ export function renderWorksheetPaperD(target,{initialPrefix,subnetPrefix,baseNet
    const tr=make('tr');tr.append(make('th','flsm-paper-label',label));
    if(kind.endsWith('decimal')){
     const values=(kind==='network-decimal'?sr.address:sr.broadcast).split('.');
-    for(let o=0;o<4;o++){const td=make('td','flsm-paper-decimal'+(o!==3?' flsm-paper-octet-end':''),stage===3?values[o]:'');td.colSpan=8;tr.append(td);}
+    for(let o=0;o<4;o++){const td=make('td','flsm-paper-decimal'+(o!==3?' flsm-paper-octet-end':''),(stage===0||stage===3)?values[o]:'');td.colSpan=8;tr.append(td);}
    }else{
     const isNetwork=kind==='network-binary';
     for(let i=0;i<32;i++){
-     const cls=['flsm-paper-bit',i<initialPrefix?'flsm-paper-network':i<subnetPrefix?'flsm-paper-borrowed':'flsm-paper-host'];
+     const cls=['flsm-paper-bit',i<initialPrefix?'flsm-paper-network':stage>=1&&i<subnetPrefix?'flsm-paper-borrowed':'flsm-paper-host'];
      if(i%8===7&&i!==31)cls.push('flsm-paper-octet-end');
      if(i===initialPrefix-1)cls.push('flsm-paper-initial-bar');
      if(stage>=1&&i===subnetPrefix-1)cls.push('flsm-paper-subnet-bar');
