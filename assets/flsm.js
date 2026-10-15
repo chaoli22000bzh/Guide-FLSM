@@ -281,17 +281,18 @@ function renderFlsmHosts(level){
    flsmHostButton('Retour à « Je teste mes connaissances »',()=>{$('pepette-menu').click();}));
  };
  if(level===1){
-  heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===4?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
+  heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===3?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
   let active=null;
   const valueField=expected=>{const input=field('Valeur à compléter dans la formule');input.dataset.expected=String(expected);active=input;return input;};
   formula.append(flsmHostElement('span','','Nb hôtes du sous-réseau ='));
   const sup=flsmHostElement('span');sup.append('(32 - ',flsmHostStep===0?valueField(prefix):String(prefix),')');
   formula.append(exponentBlock(sup),flsmHostElement('span','','− 2 ='));
   if(flsmHostStep>=1){formula.append(exponentBlock(flsmHostStep===1?valueField(exp):String(exp)),flsmHostElement('span','','− 2 ='));}
-  if(flsmHostStep>=2){formula.append(flsmHostStep===2?valueField(power):flsmHostElement('span','',String(power)),flsmHostElement('span','','− 2 ='));}
-  if(flsmHostStep>=3)formula.append(flsmHostStep===3?valueField(result):flsmHostElement('span','',String(result)));
+  
+  if(flsmHostStep>=2)formula.append(flsmHostStep===2?valueField(exp):flsmHostElement('span','',String(exp)));
+  if(flsmHostStep>=3)formula.append(flsmHostElement('span','','− 2'));
   work.append(formula);
-  if(flsmHostStep<4){
+  if(flsmHostStep<3){
    const feedback=flsmHostElement('p','pepette-hint',flsmHostFeedback);work.append(feedback);
    const verify=flsmHostButton('Vérifier',()=>{
     if(active.value.trim()===active.dataset.expected){flsmHostStep++;flsmHostFeedback='';renderFlsmHosts(1);host.querySelector('.pepette-hosts-formula input')?.focus({preventScroll:true});}
@@ -300,11 +301,6 @@ function renderFlsmHosts(level){
    active.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();verify.click();}});
    work.append(verify);
   }else finish();
-  const aid=flsmHostElement('aside','pepette-hosts-aid');aid.style.cssText='flex:0 0 340px;max-width:100%;min-width:0;margin-top:10px';
-  const panel=flsmHostElement('div');panel.hidden=true;
-  const original=$('pepette-binary-panel');
-  if(original)panel.append(original.cloneNode(true));
-  aid.append(flsmHostButton('Voir le coup de patte',()=>{panel.hidden=!panel.hidden;}),panel);layout.append(aid);
   return;
  }
  heading.append(flsmHostElement('p','',level===2?'Complète la formule du nombre d’hôtes utilisables. Tu peux corriger tes réponses.':'Construis la formule du nombre d’hôtes utilisables. Une seule tentative par adresse.'));
@@ -493,7 +489,19 @@ function renderPepetteWorksheet(){
     feedback.textContent='Je vérifie le '+(wrongOctet+1)+(wrongOctet===0?'er':'e')+' octet, puis je corrige ma ligne.';
     feedback.className='pepette-error';
     interactive.find(item=>item.octet===wrongOctet)?.input.focus();
-   }else{pepetteStep++;renderPepetteWorksheet();}
+   }else{
+    if(pepetteStep===tasks.length-1){
+     for(const item of interactive){
+      item.input.value=String(item.expected);
+      item.input.disabled=true;
+      if(item.input.classList.contains('pepette-bit-toggle'))setPepetteBit(item.input,String(item.expected)==='1');
+     }
+     pepetteStep++;
+     prompt.replaceChildren(mk('strong','pepette-success','✓ Bravo ! Mon tableau FLSM est terminé.'));
+     $('pepette-progress').textContent='Dernière étape : calcul du nombre d’hôtes utilisables';
+     renderFlsmHosts(1);
+    }else{pepetteStep++;renderPepetteWorksheet();}
+   }
   });
   prompt.append(document.createTextNode(' '),check);
  }
