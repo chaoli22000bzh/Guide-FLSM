@@ -133,7 +133,17 @@ function calculate(){
   $('flsm-c-final-prefix').textContent='/'+plan.prefix;
 
   const hostBits=32-plan.prefix;
-  $('hosts-formula').replaceChildren(document.createTextNode('Nb hôtes du sous-réseau = 2'),Object.assign(document.createElement('sup'),{textContent:'(32 - CIDR)'}),document.createTextNode(' - 2 = 2'),Object.assign(document.createElement('sup'),{textContent:'(32 - '+plan.prefix+')'}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
+  const formula=$('hosts-formula');
+  formula.replaceChildren();
+  for(const [exponent,suffix] of [
+   ['(32 - CIDR)',' - 2'],
+   ['(32 - '+plan.prefix+')',' - 2'],
+   [String(hostBits),' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')]
+  ]){
+   const line=document.createElement('div');
+   line.append(document.createTextNode('Nb hôtes du sous-réseau = 2'),Object.assign(document.createElement('sup'),{textContent:exponent}),document.createTextNode(suffix));
+   formula.append(line);
+  }
   $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
  }catch(e){plan=null;$('error').textContent=e.message;}
 }
