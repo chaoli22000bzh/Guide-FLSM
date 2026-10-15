@@ -90,8 +90,20 @@ body.dark .flsm-c-bar .is-free{background:#61716f}
 @media (max-height:520px) and (orientation:landscape) and (pointer:coarse){
 .top{height:auto;min-height:48px;padding-top:4px;padding-bottom:4px}
 }
+</style><style id="flsm-table-contrast-v0139">
+/* D et étapes suivantes : trois zones distinctes, barres uniquement dans les lignes binaires. */
+.bit-table-lesson tbody td.network{background:#e7edf5;color:#263c55}
+.bit-table-lesson tbody td.hostpart{background:#f1f3f6;color:#263c55}
+.bit-table-lesson tbody td.flsm-borrowed-cell{background:#ffdfaa;color:#713a00;font-weight:800}
+.bit-table-lesson tbody td.flsm-initial-boundary{box-shadow:inset -4px 0 #087dcc!important}
+.bit-table-lesson tbody td.flsm-new-boundary{box-shadow:inset -4px 0 #ef8500!important}
+body.dark .bit-table-lesson tbody td.network{background:#28384c;color:#eaf1fa}
+body.dark .bit-table-lesson tbody td.hostpart{background:#202b3b;color:#eaf1fa}
+body.dark .bit-table-lesson tbody td.flsm-borrowed-cell{background:#684218;color:#fff0d4}
+body.dark .bit-table-lesson tbody td.flsm-initial-boundary{box-shadow:inset -4px 0 #39bfff!important}
+body.dark .bit-table-lesson tbody td.flsm-new-boundary{box-shadow:inset -4px 0 #ff9b21!important}
 </style></head>
-<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.38</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
+<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.39</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
 <div class="layout"><div class="mobile-orientation-tip" role="note">Pour mieux lire les tableaux, tourne ton téléphone en mode paysage. Tu peux aussi continuer en portrait.</div><main>
 <section id="accueil" class="flsm-intro"><div class="flsm-orientation-tip" role="note">Pour un meilleur confort de lecture, passe ton appareil en mode paysage. Tu peux aussi continuer en mode portrait.</div><div class="flsm-example"><span class="flsm-example-label">MON EXEMPLE</span><div class="flsm-address-grid"><span class="flsm-row-label">Réseau initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">0<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">0</span><span class="flsm-prefix">/20</span><span class="flsm-row-label">Broadcast initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">15<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">255</span><span class="flsm-empty">/20</span></div></div><p>Je connais l’adresse réseau initiale, son préfixe et son broadcast. Je vais apprendre à découper ce réseau en plusieurs sous-réseaux de même taille.</p></section>
 <details class="chapter" id="fiche"><summary><span class="learn-icon icon-binary" aria-hidden="true">01</span> Je découpe mon réseau</summary><div class="chapter-body">
