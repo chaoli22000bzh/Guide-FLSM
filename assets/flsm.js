@@ -187,7 +187,7 @@ const pepetteTasks=()=>[
  {kind:'number',label:'Nombre de bits empruntés',expected:pepettePlan.prefix-pepettePlan.base.prefix},
  {kind:'number',label:'Nouveau CIDR',expected:pepettePlan.prefix},
  ...['address','broadcast'].map((key,i)=>({kind:'initial',label:i?'Broadcast initial (binaire)':'Réseau initial (binaire)',key})),
- ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>({kind:'borrowed',index,key:'address',label:'Sous-réseau '+index+' : Réseau (bits empruntés)'})),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat()
 ];
@@ -277,8 +277,10 @@ function renderFlsmHosts(level){
  const finish=()=>{
   const success=flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé '+result.toLocaleString('fr-FR')+' hôtes utilisables par sous-réseau.');
   work.append(success,flsmHostElement('p','','Tu peux donc attribuer une adresse IP à '+result.toLocaleString('fr-FR')+' équipements sur chaque sous-réseau.'));
-  work.append(flsmHostButton('Nouvel exercice complet',startPepette),
-   flsmHostButton('Retour à « Je teste mes connaissances »',()=>{$('pepette-menu').click();}));
+  const actions=flsmHostElement('div','flsm-host-finish-actions');
+  const again=flsmHostButton('Nouvel exercice',startPepette);again.classList.add('flsm-host-finish-primary');
+  const menu=flsmHostButton('Retour au menu',()=>{$('pepette-menu').click();});menu.classList.add('flsm-host-finish-secondary');
+  actions.append(again,menu);work.append(actions);
  };
  if(level===1){
   heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===2?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
@@ -393,7 +395,9 @@ function renderPepetteWorksheet(){
   for(const [label,key,binary] of pepetteRows){
    const tr=mk('tr'),name=mk('th','flsm-paper-label',label);tr.append(name);
    const taskIndex=tasks.findIndex(t=>t.key===key&&t.index===index&&t.kind===(binary?'binary':'decimal'));
-   const borrowIndex=tasks.findIndex(t=>t.kind==='borrowed'&&t.index===index&&t.key===key);
+   // Les bits empruntés sont communs au réseau et au broadcast.
+   // Une validation sur la ligne réseau valide leur recopie sur le broadcast.
+   const borrowIndex=tasks.findIndex(t=>t.kind==='borrowed'&&t.index===index);
    const initialIndex=tasks.findIndex(t=>t.kind==='initial'&&t.key===key);
    const isInitial=index===0;
    const current=tasks[pepetteStep];
