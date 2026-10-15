@@ -22,8 +22,8 @@ function renderPowers(count){
  const colors=['#2c729f','#228d85','#d19a38','#8876b4','#c46d78','#477fa4','#5c9d83','#9b7eae'];
  for(let i=0;i<capacity;i++){
   const cell=document.createElement('span');
-  if(i<count){cell.style.backgroundColor=colors[i%colors.length];cell.title='Sous-réseau '+(i+1)+' utilisé';}
-  else{cell.className='is-free';cell.title='Sous-réseau '+(i+1)+' disponible';}
+  if(i<count){cell.style.backgroundColor=colors[i%colors.length];cell.title='Sous-réseau '+i+' utilisé';}
+  else{cell.className='is-free';cell.title='Sous-réseau '+i+' disponible';}
   bar.append(cell);
  }
  bar.setAttribute('aria-label',count+' sous-réseaux utilisés sur '+capacity+', '+free+' disponibles');
@@ -187,9 +187,9 @@ const pepetteTasks=()=>[
  {kind:'number',label:'Nombre de bits empruntés',expected:pepettePlan.prefix-pepettePlan.base.prefix},
  {kind:'number',label:'Nouveau CIDR (sans /)',expected:pepettePlan.prefix},
  ...['address','broadcast'].map((key,i)=>({kind:'initial',label:i?'Broadcast initial (binaire)':'Réseau initial (binaire)',key})),
- ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
- ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
- ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+(index+1)+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat(),
  {kind:'number',label:'Nombre d’hôtes utilisables par sous-réseau',expected:usableHosts(pepettePlan.prefix)}
 ];
 function pepetteRandom(n){
@@ -329,7 +329,7 @@ function renderPepetteWorksheet(){
   table.append(tbody);block.append(table);frame.append(block);
  }
  addBlock('Réseau initial',base,null);
- for(let i=0;i<pepettePlan.concernedCount;i++)addBlock('Sous-réseau '+(i+1),subnetAt(pepettePlan,i),i);
+ for(let i=0;i<pepettePlan.concernedCount;i++)addBlock('Sous-réseau '+i,subnetAt(pepettePlan,i),i);
  host.append(frame);
  if(interactive.length){
   const check=mk('button','','Vérifier ma ligne');check.type='button';check.className='pepette-check';
