@@ -100,6 +100,7 @@ function calculate(){
   render();
  }catch(e){plan=null;$('flsm-rows').replaceChildren();$('error').textContent=e.message;}
 }
+$('subnet-count').value='4';
 $('subnet-count').addEventListener('change',calculate);
 $('flsm-next').addEventListener('click',()=>{if(plan){shown=Math.min(summaryIndices(plan.concernedCount).length,shown+1);render();}});
 $('flsm-reset').addEventListener('click',()=>{shown=0;render();});
