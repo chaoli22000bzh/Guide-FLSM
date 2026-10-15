@@ -164,7 +164,7 @@ difficultyButtons.forEach(button=>button.addEventListener('click',()=>{
  selectedDifficulty=button.dataset.trainingDifficulty;
  difficultyButtons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
  launchTraining.disabled=false;
- launchTraining.textContent='Lancer : Exercice complet + '+difficultyNames[selectedDifficulty];
+ launchTraining.textContent='Lancer : '+difficultyNames[selectedDifficulty];
  launchInfo.textContent='';
 }));
 launchTraining?.addEventListener('click',()=>{
@@ -202,7 +202,7 @@ function pepetteExercise(){
   const parsed=parseNetwork(raw,prefix);
   const ones=parsed.address.split('.').reduce((sum,x)=>sum+Number(x).toString(2).replace(/0/g,'').length,0);
   if(ones>12)continue;
-  const candidate=planSubnets({address:parsed.address,prefix:parsed.prefix,requestedCount:count});
+  const candidate=planSubnets(parsed,{method:'count',count});
   return candidate;
  }
  throw new Error("Impossible de générer l'exercice.");
