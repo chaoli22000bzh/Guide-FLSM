@@ -234,6 +234,7 @@ function startPepette(){
   $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){launchInfo.textContent=e.message;}
 }
+function setPepetteBit(input,on){input.value=on?'1':'';input.classList.toggle('is-one',on);input.setAttribute('aria-pressed',String(on));}
 function renderPepetteWorksheet(){
  const host=$('pepette-exercise');host.replaceChildren();
  const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
@@ -313,8 +314,8 @@ function renderPepetteWorksheet(){
      editable=editing&&(current.kind==='initial'?inInitial:current.kind==='borrowed'?inBorrowed:inHost);
      if(editable){
       const input=mk('input','pepette-bit');input.inputMode='numeric';input.maxLength=1;input.setAttribute('aria-label',label+', bit '+(i+1));
-      input.readOnly=true;input.setAttribute('role','button');input.setAttribute('aria-label',label+', bit '+(i+1)+', cliquer pour changer');input.style.cursor='pointer';input.dataset.bitIndex=String(i);
-      input.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();input.value=input.value==='1'?'':'1';}});
+      input.readOnly=true;input.setAttribute('role','button');input.classList.add('pepette-bit-toggle');input.setAttribute('aria-label',label+', bit '+(i+1)+', cliquer pour changer');input.style.cursor='pointer';input.dataset.bitIndex=String(i);
+      input.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();setPepetteBit(input,input.value!=='1');}});
       td.append(input);interactive.push({input,expected:expected[i],octet:Math.floor(i/8),cell:td,borrowed:current.kind==='borrowed'});
      }else if(completed){
       const val=(inInitial?pepetteBits(base[key]):pepetteBits(subnet[key]))[i];td.textContent=val==='0'&&!inBorrowed?'':val;
@@ -345,7 +346,7 @@ function renderPepetteWorksheet(){
   const paint=(start,end,value)=>{
    for(const item of bits){
     const n=Number(item.input.dataset.bitIndex);
-    if(n>=Math.min(start,end)&&n<=Math.max(start,end))item.input.value=value?'1':'';
+    if(n>=Math.min(start,end)&&n<=Math.max(start,end))setPepetteBit(item.input,value);
    }
   };
   row.addEventListener('pointerdown',e=>{
@@ -363,7 +364,7 @@ function renderPepetteWorksheet(){
    if(!cell||!row.contains(cell))return;
    const end=Number(cell.dataset.bitIndex);
    if(end===drag.last)return;
-   bits.forEach((item,i)=>item.input.value=drag.original[i]);
+   bits.forEach((item,i)=>setPepetteBit(item.input,drag.original[i]==='1'));
    drag.last=end;paint(drag.start,end,drag.value);
   });
   const stop=e=>{if(drag&&e.pointerId===drag.id){drag=null;if(row.hasPointerCapture(e.pointerId))row.releasePointerCapture(e.pointerId);}};
