@@ -313,7 +313,8 @@ function renderPepetteWorksheet(){
      editable=editing&&(current.kind==='initial'?inInitial:current.kind==='borrowed'?inBorrowed:inHost);
      if(editable){
       const input=mk('input','pepette-bit');input.inputMode='numeric';input.maxLength=1;input.setAttribute('aria-label',label+', bit '+(i+1));
-      input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);});
+      input.readOnly=true;input.setAttribute('role','button');input.setAttribute('aria-label',label+', bit '+(i+1)+', cliquer pour changer');input.style.cursor='pointer';input.dataset.bitIndex=String(i);
+      input.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();input.value=input.value==='1'?'':'1';}});
       td.append(input);interactive.push({input,expected:expected[i],octet:Math.floor(i/8),cell:td,borrowed:current.kind==='borrowed'});
      }else if(completed){
       const val=(inInitial?pepetteBits(base[key]):pepetteBits(subnet[key]))[i];td.textContent=val==='0'&&!inBorrowed?'':val;
@@ -337,6 +338,37 @@ function renderPepetteWorksheet(){
  }
  for(let i=0;i<pepettePlan.concernedCount;i++)addBlock('Sous-réseau '+i,subnetAt(pepettePlan,i),i);
  host.append(frame);
+ if(interactive.some(item=>!item.decimal)){
+  const bits=interactive.filter(item=>!item.decimal);
+  const row=bits[0].input.closest('tr');
+  let drag=null;
+  const paint=(start,end,value)=>{
+   for(const item of bits){
+    const n=Number(item.input.dataset.bitIndex);
+    if(n>=Math.min(start,end)&&n<=Math.max(start,end))item.input.value=value?'1':'';
+   }
+  };
+  row.addEventListener('pointerdown',e=>{
+   const cell=e.target.closest('input.pepette-bit');
+   if(!cell||e.button!==0)return;
+   e.preventDefault();
+   const start=Number(cell.dataset.bitIndex);
+   drag={id:e.pointerId,start,last:start,value:cell.value!=='1',original:bits.map(item=>item.input.value)};
+   row.setPointerCapture(e.pointerId);
+   paint(start,start,drag.value);
+  });
+  row.addEventListener('pointermove',e=>{
+   if(!drag||drag.id!==e.pointerId)return;
+   const cell=document.elementFromPoint(e.clientX,e.clientY)?.closest('input.pepette-bit');
+   if(!cell||!row.contains(cell))return;
+   const end=Number(cell.dataset.bitIndex);
+   if(end===drag.last)return;
+   bits.forEach((item,i)=>item.input.value=drag.original[i]);
+   drag.last=end;paint(drag.start,end,drag.value);
+  });
+  const stop=e=>{if(drag&&e.pointerId===drag.id){drag=null;if(row.hasPointerCapture(e.pointerId))row.releasePointerCapture(e.pointerId);}};
+  row.addEventListener('pointerup',stop);row.addEventListener('pointercancel',stop);
+ }
  if(interactive.length){
   const check=mk('button','','Vérifier ma ligne');check.type='button';check.className='pepette-check';
   check.addEventListener('click',()=>{
