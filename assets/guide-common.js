@@ -32,3 +32,44 @@ export function renderWorksheet(target,{initialPrefix,subnetPrefix,network,broad
  table.append(body);target.append(table);
 
 }
+
+/* Variante papier expérimentale : réservée à la partie D. */
+export function renderWorksheetPaperD(target,{initialPrefix,subnetPrefix,subnetNumber}){
+ target.replaceChildren();
+ const make=(tag,cls,content)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=content;return e;};
+ const frame=make('div','flsm-paper-d');
+ const reference=make('table','flsm-paper-grid flsm-paper-reference');
+ const refBody=make('tbody');
+ const octets=make('tr');octets.append(make('th','flsm-paper-label','OCTETS'));
+ for(let o=0;o<4;o++){const th=make('th','flsm-paper-octet flsm-paper-octet-'+(o+1),(o+1)+(o===0?'er':'e')+' octet');th.colSpan=8;octets.append(th);}refBody.append(octets);
+ for(const [name,kind] of [['Puissances de 2','powers'],['Poids décimaux','weights']]){
+  const tr=make('tr');tr.append(make('th','flsm-paper-label',name));
+  for(let i=0;i<32;i++){
+   const th=make('th','flsm-paper-reference-bit'+(i>=initialPrefix&&i<subnetPrefix?' flsm-paper-borrowed-head':''));
+   if(kind==='weights')th.textContent=String(2**(7-i%8));
+   else{th.append(document.createTextNode('2'));const sup=make('sup','',String(7-i%8));th.append(sup);}
+   tr.append(th);
+  }
+  refBody.append(tr);
+ }
+ reference.append(refBody);frame.append(reference);
+ const block=make('div','flsm-paper-subnet');
+ const header=make('div','flsm-paper-subnet-title');header.append(make('strong','','Sous-réseau'),make('span','',String(subnetNumber)));block.append(header);
+ const table=make('table','flsm-paper-grid flsm-paper-address');
+ const tbody=make('tbody');
+ for(const label of ['Réseau (binaire)','Réseau (décimal)','Broadcast (binaire)','Broadcast (décimal)']){
+  const tr=make('tr');tr.append(make('th','flsm-paper-label',label));
+  if(label.includes('décimal')){
+   for(let oct=0;oct<4;oct++){const td=make('td','flsm-paper-decimal','');td.colSpan=8;tr.append(td);}
+  }else{
+   for(let i=0;i<32;i++){
+    const classes=['flsm-paper-bit',i<initialPrefix?'flsm-paper-network':i<subnetPrefix?'flsm-paper-borrowed':'flsm-paper-host'];
+    if(i===initialPrefix-1)classes.push('flsm-paper-initial-bar');
+    if(i===subnetPrefix-1)classes.push('flsm-paper-subnet-bar');
+    tr.append(make('td',classes.join(''),''));
+   }
+  }
+  tbody.append(tr);
+ }
+ table.append(tbody);block.append(table);frame.append(block);target.append(frame);
+}
