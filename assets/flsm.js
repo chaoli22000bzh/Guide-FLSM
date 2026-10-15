@@ -15,18 +15,30 @@ function render(){
 function renderPowers(count){
  const target=$('flsm-powers');if(!target)return;
  target.replaceChildren();
- const needed=Math.ceil(Math.log2(count));
+ const needed=Math.ceil(Math.log2(count)),capacity=2**needed,free=capacity-count;
+ $('flsm-c-selected').textContent=count+' sous-réseaux';
+ $('flsm-c-needed').textContent=count+' sous-réseaux';
  for(let bits=0;bits<=needed;bits++){
-  const capacity=2**bits;
-  const item=document.createElement('div');
+  const n=2**bits,item=document.createElement('div');
   item.className='flsm-power-item'+(bits===needed?' is-sufficient':'');
   const expression=document.createElement('strong');
-  expression.append(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(bits)}),document.createTextNode(' = '+capacity.toLocaleString('fr-FR')));
-  const status=document.createElement('span');
-  status.textContent=capacity>=count?'Suffisant':'Pas assez';
+  expression.append(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(bits)}),document.createTextNode(' = '+n));
+  const status=document.createElement('span');status.textContent=n>=count?'Suffisant':'Pas assez';
   item.append(expression,status);target.append(item);
  }
- $('flsm-powers-explanation').textContent='Pour '+count+' sous-réseau(x), la première puissance de 2 suffisante est 2 puissance '+needed+' : j’emprunte '+needed+' bit(s).';
+ $('flsm-powers-explanation').textContent='2'+['⁰','¹','²','³','⁴','⁵'][needed]+' = '+capacity+' sous-réseaux possibles';
+ $('flsm-c-bits').textContent="J'emprunte donc "+needed+' bits.';
+ const bar=$('flsm-c-bar');bar.replaceChildren();
+ const colors=['#2c729f','#228d85','#d19a38','#8876b4','#c46d78','#477fa4','#5c9d83','#9b7eae'];
+ for(let i=0;i<capacity;i++){
+  const cell=document.createElement('span');
+  if(i<count){cell.style.backgroundColor=colors[i%colors.length];cell.title='Sous-réseau '+(i+1)+' utilisé';}
+  else{cell.className='is-free';cell.title='Sous-réseau '+(i+1)+' disponible';}
+  bar.append(cell);
+ }
+ bar.setAttribute('aria-label',count+' sous-réseaux utilisés sur '+capacity+', '+free+' disponibles');
+ $('flsm-c-used').textContent=count+' utilisés ('+(100*count/capacity).toLocaleString('fr-FR',{maximumFractionDigits:2})+' %)';
+ $('flsm-c-free').textContent=free+' disponibles ('+(100*free/capacity).toLocaleString('fr-FR',{maximumFractionDigits:2})+' %)';
 }
 function renderSteps(){
  if(!plan)return;
@@ -81,7 +93,7 @@ function calculate(){
   $('result-bits').textContent=String(plan.prefix-base.prefix);
   renderPowers(count);
   $('result-prefix').textContent='/'+plan.prefix;
-  $('result-capacity').textContent=`${count} sous-réseaux demandés, ${plan.capacity} sous-réseaux possibles avec ${plan.prefix-base.prefix} bit(s) emprunté(s).`;
+
   const hostBits=32-plan.prefix;
   $('hosts-formula').replaceChildren(document.createTextNode('2'),Object.assign(document.createElement('sup'),{textContent:String(hostBits)}),document.createTextNode(' - 2 = '+usableHosts(plan.prefix).toLocaleString('fr-FR')));
   $('hosts-result').textContent=`Chaque sous-réseau /${plan.prefix} dispose de ${usableHosts(plan.prefix).toLocaleString('fr-FR')} hôtes utilisables.`;
