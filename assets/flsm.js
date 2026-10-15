@@ -1,4 +1,4 @@
-import {renderWorksheet} from './guide-common.js?v=0.1.40';
+import {renderWorksheet,renderWorksheetPaperD} from './guide-common.js?v=0.1.41';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts,numberToIPv4,ipv4ToNumber} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null,shown=0,workIndex=0;
@@ -44,7 +44,8 @@ function renderSteps(){
  if(!plan)return;
  const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
  const sr=subnetAt(plan,0);
- for(let stage=0;stage<=5;stage++){
+ renderWorksheetPaperD($('flsm-sheet-0'),{initialPrefix:base.prefix,subnetPrefix:plan.prefix,subnetNumber:0});
+ for(let stage=1;stage<=5;stage++){
   renderWorksheet($('flsm-sheet-'+stage),{
    initialPrefix:base.prefix,subnetPrefix:plan.prefix,
    network:sr.address,broadcast:sr.broadcast,subnetNumber:0,stage
