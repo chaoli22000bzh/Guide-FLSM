@@ -266,7 +266,7 @@ function renderPepetteWorksheet(){
  for(const [title,powers] of [['Puissances de 2',true],['Poids décimaux',false]]){
   const tr=mk('tr');tr.append(mk('th','flsm-paper-label',title));
   for(let i=0;i<32;i++){
-   const cell=mk('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':'')+(pepetteStep>=2&&i>=base.prefix&&i<pepettePlan.prefix?' flsm-paper-borrowed-head':''));
+   const cell=mk('th','flsm-paper-reference-bit'+(i%8===7&&i!==31?' flsm-paper-octet-end':'')+(pepetteStep>=4&&i>=base.prefix&&i<pepettePlan.prefix?' flsm-paper-borrowed-head':''));
    if(powers)cell.append(document.createTextNode('2'),mk('sup','',String(7-i%8)));
    else cell.textContent=String(2**(7-i%8));
    tr.append(cell);
@@ -292,9 +292,9 @@ function renderPepetteWorksheet(){
    const groups=[];
    if(binary){
     for(let i=0;i<32;i++){
-     const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':pepetteStep>=2&&i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
-     if(i===base.prefix-1)cls.push('flsm-paper-initial-bar');
-     if(pepetteStep>=2&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
+     const cls=['flsm-paper-bit',i<base.prefix?'flsm-paper-network':pepetteStep>=4&&i<pepettePlan.prefix?'flsm-paper-borrowed':'flsm-paper-host'];
+     if(pepetteStep>=3&&i===base.prefix-1)cls.push('flsm-paper-initial-bar');
+     if(pepetteStep>=4&&i===pepettePlan.prefix-1)cls.push('flsm-paper-subnet-bar');
      const td=mk('td',cls.join(' '));
      const inInitial=i<base.prefix,inBorrowed=i>=base.prefix&&i<pepettePlan.prefix,inHost=i>=pepettePlan.prefix;
      let completed=false,editable=false;
