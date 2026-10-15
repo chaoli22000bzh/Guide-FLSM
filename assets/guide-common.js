@@ -79,6 +79,8 @@ export function renderWorksheetPaperD(target,{initialPrefix,subnetPrefix,baseNet
      if(stage===0)value=(isNetwork?initialNetworkBits:initialBroadcastBits)[i];
      else if(stage===1){if(i<initialPrefix)value=initialNetworkBits[i];else if(i<subnetPrefix)value=networkBits[i];}
      else value=(isNetwork?networkBits:broadcastBits)[i];
+     // Sur la fiche papier, les zéros restent implicites, sauf dans les bits empruntés.
+     if(stage<=1&&value==='0'&&!(stage===1&&i>=initialPrefix&&i<subnetPrefix))value='';
      tr.append(make('td',cls.join(' '),value));
     }
    }
