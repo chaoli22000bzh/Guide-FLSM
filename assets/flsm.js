@@ -1,4 +1,4 @@
-import {renderWorksheetPaperD} from './guide-common.js?v=0.1.50';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.51';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null;
@@ -49,18 +49,19 @@ function renderSteps(){
  const guide=$('flsm-e-last-guide');
  if(guide){
   const count=plan.concernedCount;
-  guide.hidden=count<=6;
-  if(count>6){
-   const borrowed=plan.prefix-base.prefix;
-   const last=count-1;
-   const lastThree=[count-3,count-2,count-1];
-   const padded=n=>n.toString(2).padStart(borrowed,'0');
-   $('flsm-e-last-intro').textContent='Je dois créer '+count+' sous-réseaux. J’ai emprunté '+borrowed+' bits : je peux donc écrire '+plan.capacity+' combinaisons binaires.';
-   $('flsm-e-last-numbers').textContent='Je commence la numérotation à 0. Le dernier sous-réseau demandé est donc le n° '+last+'. Les trois derniers sont les n° '+lastThree.join(', ')+'.';
-   $('flsm-e-last-binary').textContent='Je convertis ces numéros en binaire sur '+borrowed+' bits : '+lastThree.map((n,i)=>n+' = '+padded(n)).join(' ; ')+'.';
-   $('flsm-e-last-capacity').textContent=count<plan.capacity?'Attention : '+plan.capacity+' combinaisons sont possibles, mais je ne dois créer que '+count+' sous-réseaux. Je ne prends donc pas les trois dernières combinaisons possibles.':'Les '+plan.capacity+' combinaisons sont toutes utilisées. Les trois derniers sous-réseaux sont aussi les trois dernières combinaisons possibles.';
-  }
+  const borrowed=plan.prefix-base.prefix;
+  const first=Array.from({length:Math.min(3,count)},(_,i)=>i);
+  const lastThree=Array.from({length:Math.min(3,count)},(_,i)=>count-Math.min(3,count)+i);
+  const padded=n=>n.toString(2).padStart(borrowed,'0');
+  $('flsm-e-last-intro').textContent='Je dois créer '+count+' sous-réseaux. J’ai emprunté '+borrowed+' bits : je peux écrire '+plan.capacity+' combinaisons binaires.';
+  $('flsm-e-first-numbers').textContent='Je commence à 0. Les '+first.length+' premiers sous-réseaux portent les numéros '+first.join(', ')+'.';
+  $('flsm-e-first-binary').textContent='Je les écris sur '+borrowed+' bits : '+first.map(n=>n+' = '+padded(n)).join(' ; ')+'.';
+  $('flsm-e-last-numbers').textContent='Le dernier numéro demandé est '+(count-1)+'. Les '+lastThree.length+' derniers portent les numéros '+lastThree.join(', ')+'.';
+  $('flsm-e-last-binary').textContent='Je les écris sur '+borrowed+' bits : '+lastThree.map(n=>n+' = '+padded(n)).join(' ; ')+'.';
+  $('flsm-e-last-capacity').textContent=count<plan.capacity?'Attention : '+plan.capacity+' combinaisons sont possibles, mais seuls '+count+' sous-réseaux sont demandés.':'Les '+plan.capacity+' combinaisons sont toutes utilisées.';
+  if(guide.dataset.lastCount!==String(count)){guide.open=count>6;guide.dataset.lastCount=String(count);}
  }
+
 }
 function calculate(){
  $('error').textContent='';
