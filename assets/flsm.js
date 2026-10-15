@@ -169,8 +169,110 @@ difficultyButtons.forEach(button=>button.addEventListener('click',()=>{
 }));
 launchTraining?.addEventListener('click',()=>{
  if(!selectedDifficulty)return;
- launchInfo.textContent='Le parcours interactif « '+difficultyNames[selectedDifficulty]+' » sera intégré à la prochaine étape.';
+ if(selectedDifficulty==='1'){startPepette();return;}
+ launchInfo.textContent='Le parcours « '+difficultyNames[selectedDifficulty]+' » sera développé après validation du niveau Avec Pépette.';
 });
 
 const goFlsmTraining=$('go-flsm-training');
 goFlsmTraining?.addEventListener('click',()=>{const section=$('training-fold');section.open=true;section.scrollIntoView({behavior:'smooth',block:'start'});});
+
+ 
+// Parcours Avec Pépette : tirage indépendant, sans historique ni liste ordonnée.
+// Le moteur IPcalc reste la seule source des calculs de sous-réseaux.
+let pepettePlan=null,pepetteSubnet=0,pepetteRow=0;
+const pepetteRows=[
+ ['Réseau (binaire)','address',true],
+ ['Réseau (décimal)','address',false],
+ ['Broadcast (binaire)','broadcast',true],
+ ['Broadcast (décimal)','broadcast',false]
+];
+function pepetteRandom(n){
+ if(globalThis.crypto?.getRandomValues){const a=new Uint32Array(1);const limit=Math.floor(4294967296/n)*n;let v;do{crypto.getRandomValues(a);v=a[0];}while(v>=limit);return v%n;}
+ return Math.floor(Math.random()*n);
+}
+function pepetteExercise(){
+ const count=pepetteRandom(2)===0?2:4,borrowed=count===2?1:2;
+ const candidates=[8,16,24].flatMap(edge=>[edge,edge-borrowed]).filter(p=>p>=4&&p+borrowed<=30);
+ for(let tries=0;tries<1000;tries++){
+  const prefix=candidates[pepetteRandom(candidates.length)];
+  const first=[10,172,192][pepetteRandom(3)];
+  const second=first===172?16+pepetteRandom(16):first===192?168:pepetteRandom(16);
+  const third=pepetteRandom(16)*16,fourth=pepetteRandom(16)*16;
+  const raw=[first,second,third,fourth].join('.');
+  const parsed=parseNetwork(raw,prefix);
+  const ones=parsed.address.split('.').reduce((sum,x)=>sum+Number(x).toString(2).replace(/0/g,'').length,0);
+  if(ones>12)continue;
+  const candidate=planSubnets({address:parsed.address,prefix:parsed.prefix,requestedCount:count});
+  return candidate;
+ }
+ throw new Error("Impossible de générer l'exercice.");
+}
+function startPepette(){
+ try{
+  pepettePlan=pepetteExercise();pepetteSubnet=0;pepetteRow=0;
+  $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
+  $('pepette-feedback').textContent='';launchInfo.textContent='';
+  $('pepette-statement').textContent='Je découpe le réseau '+pepettePlan.base.address+'/'+pepettePlan.base.prefix+' en '+pepettePlan.concernedCount+' sous-réseaux de même taille. Je complète les lignes une par une.';
+  $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
+  renderPepetteRow();
+ }catch(e){launchInfo.textContent=e.message;}
+}
+function renderPepetteRow(){
+ const host=$('pepette-exercise');host.replaceChildren();
+ if(pepetteSubnet>=pepettePlan.concernedCount){
+  const section=document.createElement('div');section.className='pepette-row';
+  section.append(Object.assign(document.createElement('h4'),{textContent:"Je calcule les hôtes utilisables par sous-réseau"}));
+  const input=document.createElement('input');input.type='number';input.min='0';input.id='pepette-host-answer';input.className='pepette-decimal';input.setAttribute('aria-label',"Nombre d'hôtes utilisables");
+  const button=document.createElement('button');button.type='button';button.textContent='Vérifier ma réponse';
+  button.addEventListener('click',()=>{
+   if(Number(input.value)===usableHosts(pepettePlan.prefix)&&input.value.trim()!==''){
+    $('pepette-feedback').textContent='Bonne réponse !';$('pepette-feedback').className='pepette-valid';
+    host.replaceChildren();$('pepette-finish').hidden=false;
+   }else{$('pepette-feedback').textContent='Je vérifie mon calcul : 2 puissance (32 - '+pepettePlan.prefix+') - 2.';$('pepette-feedback').className='pepette-error';}
+  });section.append(input,document.createTextNode(' '),button);host.append(section);
+  $('pepette-progress').textContent='Dernière étape : nombre d’hôtes par sous-réseau (/'+pepettePlan.prefix+').';return;
+ }
+ const subnet=subnetAt(pepettePlan,pepetteSubnet),[label,key,binary]=pepetteRows[pepetteRow];
+ $('pepette-progress').textContent='Sous-réseau '+(pepetteSubnet+1)+' sur '+pepettePlan.concernedCount+' - '+label+' - préfixe /'+pepettePlan.prefix;
+ const section=document.createElement('div');section.className='pepette-row';
+ section.append(Object.assign(document.createElement('h4'),{textContent:'Sous-réseau '+(pepetteSubnet+1)+' : '+label}));
+ const inputs=[],octets=document.createElement('div');octets.className='pepette-octets';
+ for(let o=0;o<4;o++){
+  const group=document.createElement('div');group.className='pepette-octet';group.dataset.octet=String(o);
+  for(let bit=0;bit<(binary?8:1);bit++){
+   const input=document.createElement('input');input.className=binary?'pepette-bit':'pepette-decimal';
+   input.inputMode='numeric';input.maxLength=binary?1:3;input.setAttribute('aria-label','Octet '+(o+1)+(binary?', bit '+(bit+1):''));
+   if(binary){input.addEventListener('input',()=>{input.value=input.value.replace(/[^01]/g,'').slice(0,1);if(input.value&&inputs.length>o*8+bit+1)inputs[o*8+bit+1].focus();});}
+   else input.addEventListener('input',()=>{input.value=input.value.replace(/[^0-9]/g,'').slice(0,3);});
+   group.append(input);inputs.push(input);
+  }octets.append(group);
+ }
+ section.append(octets);
+ const button=document.createElement('button');button.type='button';button.textContent='Vérifier ma ligne';
+ button.addEventListener('click',()=>{
+  const expected=subnet[key].split('.').map(x=>binary?Number(x).toString(2).padStart(8,'0'):String(Number(x)));
+  let firstWrong=-1;
+  for(let o=0;o<4;o++){
+   const actual=inputs.slice(o*(binary?8:1),(o+1)*(binary?8:1)).map(x=>x.value).join('');
+   const wrong=binary?actual!==expected[o]:actual===''||Number(actual)!==Number(expected[o]);
+   octets.children[o].classList.toggle('pepette-octet-error',wrong);
+   if(wrong&&firstWrong<0)firstWrong=o;
+  }
+  if(firstWrong>=0){
+   $('pepette-feedback').textContent='Je vérifie le '+(firstWrong+1)+(firstWrong===0?'er':'e')+' octet. Je corrige puis je vérifie ma ligne.';
+   $('pepette-feedback').className='pepette-error';inputs[firstWrong*(binary?8:1)].focus();return;
+  }
+  $('pepette-feedback').textContent='Ligne correcte !';$('pepette-feedback').className='pepette-valid';
+  pepetteRow++;if(pepetteRow===pepetteRows.length){pepetteRow=0;pepetteSubnet++;}
+  renderPepetteRow();
+ });
+ section.append(button);host.append(section);
+ inputs[0]?.focus();
+}
+$('pepette-again')?.addEventListener('click',startPepette);
+$('pepette-menu')?.addEventListener('click',()=>{
+ $('pepette-training').hidden=true;pepettePlan=null;selectedDifficulty=null;
+ difficultyButtons.forEach(button=>button.setAttribute('aria-pressed','false'));
+ launchTraining.disabled=true;launchTraining.textContent='Je choisis ma difficulté';
+ $('training-fold').scrollIntoView({behavior:'smooth',block:'start'});
+});
