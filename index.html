@@ -22,7 +22,17 @@
 .novatech-vlan em{font-style:normal;color:#b45309;font-weight:900}
 @media(max-width:700px){.novatech-vlans{grid-template-columns:repeat(2,minmax(0,1fr))}.novatech-vlan code{font-size:clamp(.75rem,3.2vw,.95rem)}.novatech-vlan span{min-height:0}.novatech-parent>strong{font-size:1.15rem}}
 @media(max-width:340px){.novatech-vlans{grid-template-columns:1fr}.novatech-vlan{padding:.5rem}.novatech-vlan code{font-size:.95rem}}
-</style><style id="flsm-part-b">
+</style><style id="flsm-part-c">
+.flsm-c-conclusion{margin:16px 0 12px}
+.flsm-c-conclusion>strong{display:block;font-size:1.2rem;line-height:1.4}
+.flsm-c-conclusion p{margin:6px 0;font-weight:650}
+.flsm-c-bar{display:flex;height:32px;overflow:hidden;border:1px solid var(--line);border-radius:6px}
+.flsm-c-bar span{flex:1;min-width:0;border-right:1px solid rgba(255,255,255,.3)}
+.flsm-c-bar span:last-child{border-right:0}
+.flsm-c-bar .is-free{background:#dfe8e6}
+.flsm-c-bar-labels{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;margin:7px 0 17px}
+</style>
+<style id="flsm-part-b">
 .flsm-four-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
 .flsm-data-item{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-width:0}
 .flsm-data-label{color:var(--muted);font-size:.85rem;font-weight:650;line-height:1.4}
@@ -67,7 +77,7 @@
 .top{height:auto;min-height:48px;padding-top:4px;padding-bottom:4px}
 }
 </style></head>
-<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.32</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
+<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.33</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
 <div class="layout"><div class="mobile-orientation-tip" role="note">Pour mieux lire les tableaux, tourne ton téléphone en mode paysage. Tu peux aussi continuer en portrait.</div><main>
 <section id="accueil" class="flsm-intro"><div class="flsm-orientation-tip" role="note">Pour un meilleur confort de lecture, passe ton appareil en mode paysage. Tu peux aussi continuer en mode portrait.</div><div class="flsm-example"><span class="flsm-example-label">MON EXEMPLE</span><div class="flsm-address-grid"><span class="flsm-row-label">Réseau initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">0<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">0</span><span class="flsm-prefix">/20</span><span class="flsm-row-label">Broadcast initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">16<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">15<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">255</span><span class="flsm-empty">/20</span></div></div><p>Je connais l’adresse réseau initiale, son préfixe et son broadcast. Je vais apprendre à découper ce réseau en plusieurs sous-réseaux de même taille.</p></section>
 <details class="chapter" id="fiche"><summary><span class="learn-icon icon-binary" aria-hidden="true">01</span> Je découpe mon réseau</summary><div class="chapter-body">
@@ -108,7 +118,16 @@
 </div></details>
 <input id="base-address" type="hidden" value="172.16.0.0"><input id="base-broadcast" type="hidden" value="172.16.15.255"><input id="base-prefix" type="hidden" value="/20">
 <p id="error" class="flsm-error" role="alert" aria-live="polite"></p></div></details>
-<details class="subfold"><summary>C · Je calcule les bits empruntés et le nouveau préfixe</summary><div class="fold-body"><div class="card lesson-step"><h3>Je cherche la première puissance de 2 suffisante</h3><p>Je cherche la première puissance de 2 qui permet d'obtenir au moins le nombre de sous-réseaux demandés. L'exposant me donne directement le nombre de bits à emprunter.</p><div id="flsm-powers" class="flsm-power-scale" aria-label="Recherche du nombre de bits empruntés"></div><p id="flsm-powers-explanation" class="hint" aria-live="polite"></p><p>J'ajoute ensuite les bits empruntés au préfixe initial pour obtenir le préfixe de sous-réseau. Je remplis les trois cases correspondantes en haut de la partie B de ma fiche.</p><div class="flsm-result"><div><small>Préfixe initial</small><strong id="result-initial">/20</strong></div><div><small>Bits empruntés</small><strong id="result-bits">3</strong></div><div><small>Préfixe de sous-réseau</small><strong id="result-prefix">/23</strong></div></div><p id="result-capacity" class="hint"></p></div></div></details>
+<details class="subfold"><summary>C · Je calcule les bits empruntés et le nouveau préfixe</summary><div class="fold-body"><div class="card lesson-step">
+<p>Dans la partie B, j'ai sélectionné <strong id="flsm-c-selected">4 sous-réseaux</strong>.</p>
+<p>Je cherche la puissance de 2 suffisante pour obtenir mes <strong id="flsm-c-needed">4 sous-réseaux</strong>.</p>
+<div id="flsm-powers" class="flsm-power-scale" aria-label="Recherche du nombre de bits empruntés"></div>
+<div class="flsm-c-conclusion" aria-live="polite"><strong id="flsm-powers-explanation"></strong><p id="flsm-c-bits"></p></div>
+<div id="flsm-c-bar" class="flsm-c-bar" role="img" aria-label="Répartition des sous-réseaux"></div>
+<div class="flsm-c-bar-labels"><span id="flsm-c-used"></span><span id="flsm-c-free"></span></div>
+<p>J'ajoute les bits empruntés au préfixe initial pour obtenir le préfixe de sous-réseau.</p>
+<div class="flsm-result"><div><small>Préfixe initial</small><strong id="result-initial">/20</strong></div><div><small>Bits empruntés</small><strong id="result-bits">2</strong></div><div><small>Préfixe de sous-réseau</small><strong id="result-prefix">/22</strong></div></div>
+</div></div></details>
 <details class="subfold"><summary>D · Je repère les colonnes des bits empruntés</summary><div class="fold-body"><p>Je repère d'abord la frontière du préfixe initial dans mon tableau à 32 bits. Je compte ensuite vers la droite les colonnes correspondant aux bits empruntés : elles deviennent orange. La nouvelle frontière marque la fin des bits réseau du sous-réseau. Pour /20 vers /23, les trois colonnes empruntées se trouvent dans le troisième octet.</p><div class="table-scroll" id="flsm-sheet-0"></div></div></details>
 <details class="subfold"><summary>E · J'inscris les 0 et les 1 des bits empruntés</summary><div class="fold-body"><p>Je commence par les colonnes orange : pour le sous-réseau 0, j'inscris 000. Pour le sous-réseau 1, j'inscris 001. Je ne remplis pas encore les autres cases.</p><div class="table-scroll" id="flsm-sheet-1"></div></div></details>
 <details class="subfold"><summary>F · Je complète le réseau en binaire</summary><div class="fold-body"><p>Je conserve les bits du réseau initial et les bits empruntés. Je complète toutes les cases hôtes avec des 0.</p><div class="table-scroll" id="flsm-sheet-2"></div></div></details>
@@ -119,4 +138,4 @@
 <div class="chapter-next"><p><strong>J'ai terminé la partie droite de ma fiche.</strong> Je peux maintenant choisir un niveau pour m'entraîner.</p><button type="button" id="go-flsm-training">Passer aux exercices</button></div>
 </div></details>
 <details class="chapter training-highlight" id="training-fold"><summary><span class="learn-icon icon-finish" aria-hidden="true">🏁</span> Je teste mes connaissances</summary><div class="chapter-body"><div class="training-setup"><h3 class="flsm-difficulty-title">Quelle difficulté je choisis ?</h3><div class="training-difficulties" role="group" aria-label="Choix de la difficulté"><button type="button" class="training-difficulty" data-training-difficulty="1" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span></span><span class="difficulty-description"><strong>Avec Pépette</strong><small>Exercice simple et guidé</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="2" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span></span><span class="difficulty-description"><strong>Je me débrouille</strong><small>Difficulté intermédiaire</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="3" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span><span></span></span><span class="difficulty-description"><strong>Je relève le défi</strong><small>Réseau et découpage plus complexes</small></span></button></div><div class="training-launch"><button type="button" id="launch-training" disabled>Je choisis ma difficulté</button><p id="training-launch-info" class="training-launch-info" aria-live="polite"></p></div></div></div></details>
-</main></div><script type="module" src="assets/flsm.js?v=0.1.29"></script></body></html>
+</main></div><script type="module" src="assets/flsm.js?v=0.1.33"></script></body></html>
