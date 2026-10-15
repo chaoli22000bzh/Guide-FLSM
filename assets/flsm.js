@@ -189,8 +189,7 @@ const pepetteTasks=()=>[
  ...['address','broadcast'].map((key,i)=>({kind:'initial',label:i?'Broadcast initial (binaire)':'Réseau initial (binaire)',key})),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'borrowed',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (bits empruntés)'}))).flat(),
  ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'binary',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (binaire)'}))).flat(),
- ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat(),
- {kind:'number',label:'Nombre d’hôtes utilisables par sous-réseau',expected:usableHosts(pepettePlan.prefix)}
+ ...Array.from({length:pepettePlan.concernedCount},(_,index)=>['address','broadcast'].map((key,i)=>({kind:'decimal',index,key,label:'Sous-réseau '+index+' : '+(i?'Broadcast':'Réseau')+' (décimal)'}))).flat()
 ];
 function pepetteRandom(n){
  if(globalThis.crypto?.getRandomValues){const a=new Uint32Array(1);const limit=Math.floor(4294967296/n)*n;let v;do{crypto.getRandomValues(a);v=a[0];}while(v>=limit);return v%n;}
@@ -216,7 +215,7 @@ function pepetteExercise(){
 
 function startPepette(){
  try{
-  pepettePlan=pepetteExercise();pepetteStep=0;
+  pepettePlan=pepetteExercise();pepetteStep=0;flsmHostStep=0;flsmHostFeedback='';
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
   $('pepette-feedback').textContent='';launchInfo.textContent='';
   const base=pepettePlan.base;
@@ -234,11 +233,117 @@ function startPepette(){
   $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){launchInfo.textContent=e.message;}
 }
+
+/* Calcul des hôtes : trois parcours repris du questionnaire IPv4.
+   Le préfixe est celui du sous-réseau obtenu après découpage FLSM. */
+let flsmHostStep=0,flsmHostLevel=1,flsmHostFeedback='',flsmHostExpertChecked=false,flsmHostExpertValues=null;
+function flsmHostElement(tag,cls,textValue){
+ const node=document.createElement(tag);
+ if(cls)node.className=cls;
+ if(textValue!==undefined)node.textContent=textValue;
+ return node;
+}
+function flsmHostButton(label,callback){
+ const button=flsmHostElement('button','',label);button.type='button';button.addEventListener('click',callback);return button;
+}
+function renderFlsmHosts(level){
+ flsmHostLevel=level;
+ const host=$('pepette-exercise'),prefix=pepettePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
+ host.replaceChildren();
+ const heading=flsmHostElement('div','pepette-exercise-heading');
+ heading.append(flsmHostElement('h3','', 'Calcul du nombre d’hôtes - '+difficultyNames[String(level)]),
+  flsmHostElement('p','', 'CIDR du sous-réseau : /'+prefix));
+ host.append(heading);
+ const work=flsmHostElement('div','pepette-hosts-work');
+ work.style.cssText='min-width:0;flex:1 1 380px';
+ const layout=flsmHostElement('div','pepette-hosts-layout');
+ layout.style.cssText='display:flex;align-items:flex-start;flex-wrap:wrap;gap:24px;margin-top:12px';
+ layout.append(work);host.append(layout);
+ const formula=flsmHostElement('div','pepette-hosts-formula');
+ formula.style.cssText='display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;font-size:1.45rem;font-weight:600;line-height:2.5;margin:20px 0 12px';
+ const field=(label,width=58)=>{
+  const input=flsmHostElement('input');input.type='text';input.inputMode='numeric';input.autocomplete='off';
+  input.setAttribute('aria-label',label);input.style.cssText='width:'+width+'px;box-sizing:border-box;text-align:center;font:inherit;padding:4px;border:2px solid #f59e0b;border-radius:5px';
+  return input;
+ };
+ const exponentBlock=child=>{
+  const group=flsmHostElement('span');group.style.cssText='display:inline-flex;align-items:flex-start;white-space:nowrap';
+  group.append(flsmHostElement('span','','2'));
+  const sup=flsmHostElement('sup');sup.style.cssText='font-size:.65em;line-height:1.2;position:relative;top:-.2em';
+  sup.append(child);group.append(sup);return group;
+ };
+ const finish=()=>{
+  const success=flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé '+result.toLocaleString('fr-FR')+' hôtes utilisables par sous-réseau.');
+  work.append(success,flsmHostElement('p','','Tu peux donc attribuer une adresse IP à '+result.toLocaleString('fr-FR')+' équipements sur chaque sous-réseau.'));
+  work.append(flsmHostButton('Nouvel exercice complet',startPepette),
+   flsmHostButton('Retour à « Je teste mes connaissances »',()=>{$('pepette-menu').click();}));
+ };
+ if(level===1){
+  heading.append(flsmHostElement('p','pepette-step-instruction',flsmHostStep===4?'Bravo ! Ton calcul est terminé.':'Complète la case dans l’égalité, puis vérifie ta réponse.'));
+  let active=null;
+  const valueField=expected=>{const input=field('Valeur à compléter dans la formule');input.dataset.expected=String(expected);active=input;return input;};
+  formula.append(flsmHostElement('span','','Nb hôtes du sous-réseau ='));
+  const sup=flsmHostElement('span');sup.append('(32 - ',flsmHostStep===0?valueField(prefix):String(prefix),')');
+  formula.append(exponentBlock(sup),flsmHostElement('span','','− 2 ='));
+  if(flsmHostStep>=1){formula.append(exponentBlock(flsmHostStep===1?valueField(exp):String(exp)),flsmHostElement('span','','− 2 ='));}
+  if(flsmHostStep>=2){formula.append(flsmHostStep===2?valueField(power):flsmHostElement('span','',String(power)),flsmHostElement('span','','− 2 ='));}
+  if(flsmHostStep>=3)formula.append(flsmHostStep===3?valueField(result):flsmHostElement('span','',String(result)));
+  work.append(formula);
+  if(flsmHostStep<4){
+   const feedback=flsmHostElement('p','pepette-hint',flsmHostFeedback);work.append(feedback);
+   const verify=flsmHostButton('Vérifier',()=>{
+    if(active.value.trim()===active.dataset.expected){flsmHostStep++;flsmHostFeedback='';renderFlsmHosts(1);host.querySelector('.pepette-hosts-formula input')?.focus({preventScroll:true});}
+    else{feedback.textContent='Ce n’est pas la bonne valeur. Essaie encore.';active.focus();active.select();}
+   });
+   active.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();verify.click();}});
+   work.append(verify);
+  }else finish();
+  const aid=flsmHostElement('aside','pepette-hosts-aid');aid.style.cssText='flex:0 0 340px;max-width:100%;min-width:0;margin-top:10px';
+  const panel=flsmHostElement('div');panel.hidden=true;
+  const original=$('pepette-binary-panel');
+  if(original)panel.append(original.cloneNode(true));
+  aid.append(flsmHostButton('Voir le coup de patte',()=>{panel.hidden=!panel.hidden;}),panel);layout.append(aid);
+  return;
+ }
+ heading.append(flsmHostElement('p','',level===2?'Complète la formule du nombre d’hôtes utilisables. Tu peux corriger tes réponses.':'Construis la formule du nombre d’hôtes utilisables. Une seule tentative par adresse.'));
+ const base=field('Base',64),exponent=field('Exposant',60),last=field(level===2?'Nombre à soustraire':'Dernier terme, signe compris',76);
+ const pow=flsmHostElement('span');const sup=flsmHostElement('sup');sup.append(exponent);pow.append(base,sup);
+ formula.append(flsmHostElement('span','','Nb hôtes du sous-réseau ='),pow);
+ if(level===2)formula.append(flsmHostElement('span','','−'));
+ else last.inputMode='text';
+ formula.append(last);
+ const numeric=exp<=8?field('Résultat numérique',95):null;
+ if(numeric)formula.append(flsmHostElement('span','','='),numeric);
+ work.append(formula);
+ const feedback=flsmHostElement('div',level===2?'pepette-hosts-medium-feedback':'pepette-hosts-expert-feedback');work.append(feedback);
+ const check=()=>{
+  const correctBase=base.value.trim()==='2',correctExp=exponent.value.trim()===String(exp);
+  const correctLast=level===2?last.value.trim()==='2':last.value.trim().replace(/\s+/g,'').replace('−','-')==='-2';
+  const correctResult=!numeric||numeric.value.trim().replace(/[\s\u00a0\u202f]/g,'')===String(result);
+  const correct=correctBase&&correctExp&&correctLast&&correctResult;
+  feedback.replaceChildren();
+  if(correct){feedback.append(flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé la bonne formule.'));finish();for(const input of [base,exponent,last,numeric].filter(Boolean))input.disabled=true;verify.disabled=true;}
+  else{
+   feedback.append(flsmHostElement('p','pepette-hint',level===2?'Ce n’est pas encore tout à fait correct. Tu peux modifier tes réponses et vérifier à nouveau.':'Cette formule n’est pas correcte. Voici ce qu’il faut revoir :'));
+   if(!correctBase||!correctExp)feedback.append(flsmHostElement('p','','Vérifie la puissance de 2 : combien de bits restent disponibles pour les hôtes ?'));
+   if(!correctLast)feedback.append(flsmHostElement('p','','Deux adresses sont réservées : celle du réseau et celle de broadcast.'));
+   if(!correctResult)feedback.append(flsmHostElement('p','','Vérifie le calcul numérique.'));
+   if(level===3){
+    const solution=flsmHostElement('p','','Formule attendue : 2');const sup=flsmHostElement('sup','',String(exp));solution.append(sup,' − 2');
+    if(numeric)solution.append(' = '+result.toLocaleString('fr-FR'));
+    feedback.append(solution);verify.remove();
+    feedback.append(flsmHostButton('Corriger mon calcul',()=>renderFlsmHosts(3)));
+   }
+  }
+ };
+ const verify=flsmHostButton('Vérifier',check);work.append(verify);
+}
+
 function setPepetteBit(input,on){input.value=on?'1':'';input.classList.toggle('is-one',on);input.setAttribute('aria-pressed',String(on));}
 function renderPepetteWorksheet(){
  const host=$('pepette-exercise');host.replaceChildren();
  const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
- if(!active){$('pepette-finish').hidden=false;$('pepette-progress').textContent='Exercice terminé.';return;}
+ if(!active){$('pepette-progress').textContent='Dernière étape : calcul du nombre d’hôtes utilisables';renderFlsmHosts(1);return;}
  $('pepette-progress').textContent='Étape '+(pepetteStep+1)+' sur '+tasks.length+' : '+active.label;
  const history=document.createElement('div');history.className='pepette-history';
  for(let i=0;i<pepetteStep;i++){
@@ -389,9 +494,7 @@ function renderPepetteWorksheet(){
   });
   prompt.append(document.createTextNode(' '),check);
  }
- if(pepetteStep===tasks.length-1){
-  const help=mk('p','hint','Je calcule 2 puissance (32 - '+pepettePlan.prefix+') - 2.');prompt.append(help);
- }
+
 }
 $('pepette-again')?.addEventListener('click',startPepette);
 $('pepette-menu')?.addEventListener('click',()=>{
