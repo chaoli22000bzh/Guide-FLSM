@@ -1,4 +1,4 @@
-import {renderWorksheetPaperD} from './guide-common.js?v=0.1.55';
+import {renderWorksheetPaperD} from './guide-common.js?v=0.1.57';
 import {parseNetwork,planSubnets,subnetAt,summaryIndices,usableHosts} from './ipcalc-ipv4.js';
 const $=id=>document.getElementById(id);
 let plan=null;
@@ -41,6 +41,21 @@ function renderSteps(){
    baseNetwork:base.address,baseBroadcast:base.broadcast,
    subnets,stage
   });
+ }
+ const bilan=$('flsm-g-bilan-list');
+ if(bilan){
+  bilan.replaceChildren();
+  $('flsm-g-bilan-intro').textContent='J’ai obtenu '+plan.concernedCount+' sous-réseaux en /'+plan.prefix+' :';
+  const table=document.createElement('table');
+  const body=document.createElement('tbody');
+  for(const subnet of subnets){
+   const row=document.createElement('tr');
+   const label=document.createElement('th');label.scope='row';label.textContent='Sous-réseau '+subnet.number;
+   const address=document.createElement('td');address.textContent=subnet.address+'/'+plan.prefix;
+   row.append(label,address);body.append(row);
+  }
+  table.append(body);bilan.append(table);
+  $('flsm-g-bilan-note').textContent=plan.concernedCount>6?'Voici les 3 premiers et les 3 derniers sous-réseaux. Les autres sont également compris dans le découpage.':'';
  }
  const e=$('flsm-e-explanation');
  if(e)e.textContent=plan.concernedCount<=6?
