@@ -42,7 +42,7 @@ function renderPowers(count){
 }
 function renderSteps(){
  if(!plan)return;
- const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\\//,''));
+ const base=parseNetwork($('base-address').value.trim(),$('base-prefix').value.trim().replace(/^\//,''));
  const indices=summaryIndices(plan.concernedCount);
  const subnets=indices.map(number=>({number,...subnetAt(plan,number)}));
  for(let stage=0;stage<=3;stage++){
