@@ -488,7 +488,15 @@ function renderFlsmHosts(level){
   const correctResult=!numeric||numeric.value.trim().replace(/[\s\u00a0\u202f]/g,'')===String(result);
   const correct=correctBase&&correctExp&&correctLast&&correctResult;
   feedback.replaceChildren();
-  if(correct){feedback.append(flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé la bonne formule.'));finish();for(const input of [base,exponent,last,numeric].filter(Boolean))input.disabled=true;verify.disabled=true;}
+  if(correct){
+   const tick=flsmHostElement('span','flsm-host-validated','✓');
+   tick.setAttribute('role','status');tick.setAttribute('aria-label','Formule validée');
+   tick.title='Formule validée';
+   feedback.append(tick);
+   for(const input of [base,exponent,last,numeric].filter(Boolean))input.disabled=true;
+   verify.remove();
+   finish();
+  }
   else{
    feedback.append(flsmHostElement('p','pepette-hint',level===2?'Ce n’est pas encore tout à fait correct. Tu peux modifier tes réponses et vérifier à nouveau.':'Cette formule n’est pas correcte. Voici ce qu’il faut revoir :'));
    if(!correctBase||!correctExp)feedback.append(flsmHostElement('p','','Vérifie la puissance de 2 : combien de bits restent disponibles pour les hôtes ?'));
