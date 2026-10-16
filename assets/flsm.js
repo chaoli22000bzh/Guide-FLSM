@@ -316,7 +316,7 @@ function renderSubnetExercise(level){
  $('pepette-progress').textContent='';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;};
 
- const intro=make('p','',level===3?'Je complète les 32 bits et les adresses décimales de tous les sous-réseaux. Je valide mon tableau entier en une seule fois.':'Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
+ const intro=make('p','',level===3?'Je complète les 32 bits et les adresses décimales des sous-réseaux affichés. Je valide mon tableau entier en une seule fois.':'Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
  root.append(intro);
  const countRow=make('div','pepette-row');
  countRow.append(make('strong','','Nombre de bits empruntés : '));
@@ -340,7 +340,10 @@ function renderSubnetExercise(level){
  }
  ref.append(head);frame.append(ref);root.append(frame);
  const blocks=[],entries=[];
- for(let index=0;index<plan.concernedCount;index++){
+ const shownIndices=level===3&&plan.concernedCount>6
+  ?[0,1,2,plan.concernedCount-3,plan.concernedCount-2,plan.concernedCount-1]
+  :Array.from({length:plan.concernedCount},(_,i)=>i);
+ for(const index of shownIndices){
   const subnet=subnetAt(plan,index),block=make('div','flsm-paper-subnet'),title=make('div','flsm-paper-subnet-title');
   title.append(make('strong','','Sous-réseau '));const number=make('strong','flsm-subnet-number',String(index));title.append(number);block.append(title);
   const table=make('table','flsm-paper-grid flsm-paper-address'),body=make('tbody');
@@ -417,6 +420,7 @@ function renderSubnetExercise(level){
   tick.title='Calculs validés';countRow.append(tick);
   prefixFeedback.textContent='';
   blocks.forEach(block=>block.hidden=false);
+  if(level===3)actions.hidden=false;
  });
  if(level===3){
   const actions=make('div','pepette-actions');
@@ -424,6 +428,7 @@ function renderSubnetExercise(level){
   verifyAll.type='button';
   const globalFeedback=make('p','');globalFeedback.setAttribute('aria-live','polite');
   actions.append(verifyAll,globalFeedback);root.append(actions);
+  actions.hidden=true;
   verifyAll.addEventListener('click',()=>{
    const valid=entries.every(inputs=>inputs.every(({input,expected,binary})=>
     binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected)
