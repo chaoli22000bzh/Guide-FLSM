@@ -291,7 +291,7 @@ function renderMedium(){
  const blocks=[],entries=[];
  for(let index=0;index<plan.concernedCount;index++){
   const subnet=subnetAt(plan,index),block=make('div','flsm-paper-subnet'),title=make('div','flsm-paper-subnet-title');
-  title.append(make('strong','','Sous-réseau '+index));block.append(title);
+  title.append(make('strong','','Sous-réseau '));const number=make('strong','flsm-subnet-number',String(index));title.append(number);block.append(title);
   const table=make('table','flsm-paper-grid flsm-paper-address'),body=make('tbody');
   const inputs=[];
   for(const [label,key,binary] of pepetteRows){
@@ -343,7 +343,8 @@ function renderMedium(){
   verify.addEventListener('click',()=>{
    const correct=inputs.every(({input,expected,binary})=>binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected));
    if(!correct){feedback.className='pepette-error';feedback.textContent='Il reste une erreur dans ce sous-réseau. Je vérifie mes quatre lignes.';return;}
-   feedback.className='pepette-success';feedback.textContent='✓ Sous-réseau '+index+' validé.';
+   const tick=make('span','flsm-subnet-validated',' ✓');tick.setAttribute('aria-label','Validé');tick.title='Sous-réseau validé';title.append(tick);
+   controls.remove();
    for(const {input} of inputs)input.disabled=true;
    verify.disabled=true;mediumValidated++;
    $('pepette-progress').textContent='Je me débrouille : '+mediumValidated+' sous-réseau(x) validé(s) sur '+plan.concernedCount;
