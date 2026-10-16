@@ -171,6 +171,7 @@ launchTraining?.addEventListener('click',()=>{
  if(!selectedDifficulty)return;
  if(selectedDifficulty==='1'){startPepette();return;}
  if(selectedDifficulty==='2'){startMedium();return;}
+ if(selectedDifficulty==='3'){startExpert();return;}
  launchInfo.textContent='Le parcours « '+difficultyNames[selectedDifficulty]+' » sera développé après validation du niveau Avec Pépette.';
 });
 
@@ -228,6 +229,7 @@ function pepetteExercise(){
 /* Niveau intermédiaire : tableau commun, validation de chaque sous-réseau
    sans révélation des bits ou des octets erronés. */
 let mediumPlan=null,mediumValidated=0,mediumInputs=[];
+let expertPlan=null;
 function mediumExercise(){
  for(let attempt=0;attempt<1200;attempt++){
   const count=3+pepetteRandom(6),borrowed=Math.ceil(Math.log2(count));
@@ -240,6 +242,32 @@ function mediumExercise(){
   return planSubnets(parsed,{method:'count',count});
  }
  throw new Error('Impossible de générer un exercice intermédiaire.');
+}
+// Niveau expert : cinq à seize sous-réseaux, sans guidage et validation globale.
+function expertExercise(){
+ for(let attempt=0;attempt<2000;attempt++){
+  const count=5+pepetteRandom(12),borrowed=Math.ceil(Math.log2(count));
+  const prefix=9+pepetteRandom(18);
+  if(prefix+borrowed>29||prefix%8===0||(prefix+borrowed)%8===0)continue;
+  // Favoriser les CIDR traversant une limite d'octet.
+  if(Math.floor((prefix-1)/8)===Math.floor((prefix+borrowed-1)/8))continue;
+  const bytes=Array.from({length:4},()=>pepetteRandom(256));
+  const parsed=parseNetwork(bytes.join('.'),prefix);
+  const ones=pepetteBits(parsed.address).slice(0,prefix).split('1').length-1;
+  if(ones<Math.max(6,Math.floor(prefix*.48)))continue;
+  return planSubnets(parsed,{method:'count',count});
+ }
+ throw new Error('Impossible de générer un exercice expert.');
+}
+function startExpert(){
+ setFlsmTrainingPresentation(3);
+ try{
+  expertPlan=expertExercise();flsmHostStep=0;flsmHostFeedback='';
+  $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
+  $('pepette-feedback').textContent='';launchInfo.textContent='';
+  renderSubnetExercise(3);
+  $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(error){launchInfo.textContent=error.message;}
 }
 function setFlsmTrainingPresentation(level){
  const title=$('flsm-exercise-title');
@@ -267,21 +295,32 @@ function startMedium(){
    const line=document.createElement('div');line.append(document.createTextNode(label+' : '));
    const strong=document.createElement('strong');strong.className=cls;strong.textContent=value;line.append(strong);$('pepette-statement').append(line);
   }
-  renderMedium();
+  renderSubnetExercise(2);
   $('pepette-training').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(error){launchInfo.textContent=error.message;}
 }
-function renderMedium(){
+function renderSubnetExercise(level){
  const root=$('pepette-exercise');root.replaceChildren();
- const plan=mediumPlan,base=plan.base;
+ const plan=level===3?expertPlan:mediumPlan,base=plan.base;
+ if(level===3){
+  $('pepette-statement').replaceChildren();
+  for(const [label,value,cls] of [
+   ['Réseau initial',base.address+'/'+base.prefix,'pepette-address'],
+   ['Broadcast initial',base.broadcast,''],
+   ['Sous-réseaux demandés',String(plan.concernedCount),'pepette-count']
+  ]){
+   const line=document.createElement('div');line.append(document.createTextNode(label+' : '));
+   const strong=document.createElement('strong');strong.className=cls;strong.textContent=value;line.append(strong);$('pepette-statement').append(line);
+  }
+ }
  $('pepette-progress').textContent='';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;};
 
- const intro=make('p','','Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
+ const intro=make('p','',level===3?'Je complète les 32 bits et les adresses décimales de tous les sous-réseaux. Je valide mon tableau entier en une seule fois.':'Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
  root.append(intro);
  const countRow=make('div','pepette-row');
  countRow.append(make('strong','','Nombre de bits empruntés : '));
- const borrowed=make('input','pepette-decimal');borrowed.type='number';borrowed.min='1';borrowed.max='4';borrowed.setAttribute('aria-label','Nombre de bits empruntés');
+ const borrowed=make('input','pepette-decimal');borrowed.type='number';borrowed.min='1';borrowed.max=level===3?'5':'4';borrowed.setAttribute('aria-label','Nombre de bits empruntés');
  countRow.append(borrowed,make('strong','',' Nouveau CIDR : /'));
  const cidr=make('input','pepette-decimal');cidr.type='number';cidr.min='1';cidr.max='30';cidr.setAttribute('aria-label','Nouveau CIDR');
  countRow.append(cidr);
@@ -350,9 +389,9 @@ function renderMedium(){
   }
   table.append(body);block.append(table);
   const controls=make('div','pepette-actions'),verify=make('button','pepette-check','Vérifier le sous-réseau '+index),feedback=make('p','');
-  verify.type='button';controls.append(verify,feedback);block.append(controls);
+  verify.type='button';if(level===2){controls.append(verify,feedback);block.append(controls);}
   frame.append(block);blocks.push(block);entries.push(inputs);
-  verify.addEventListener('click',()=>{
+  if(level===2)verify.addEventListener('click',()=>{
    const correct=inputs.every(({input,expected,binary})=>binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected));
    if(!correct){feedback.className='pepette-error';feedback.textContent='Il reste une erreur dans ce sous-réseau. Je vérifie mes quatre lignes.';return;}
    const tick=make('span','flsm-subnet-validated',' ✓');tick.setAttribute('aria-label','Validé');tick.title='Sous-réseau validé';title.append(tick);
@@ -379,6 +418,27 @@ function renderMedium(){
   prefixFeedback.textContent='';
   blocks.forEach(block=>block.hidden=false);
  });
+ if(level===3){
+  const actions=make('div','pepette-actions');
+  const verifyAll=make('button','pepette-check','Vérifier mon tableau');
+  verifyAll.type='button';
+  const globalFeedback=make('p','');globalFeedback.setAttribute('aria-live','polite');
+  actions.append(verifyAll,globalFeedback);root.append(actions);
+  verifyAll.addEventListener('click',()=>{
+   const valid=entries.every(inputs=>inputs.every(({input,expected,binary})=>
+    binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected)
+   ));
+   if(!valid){
+    globalFeedback.className='pepette-error';
+    globalFeedback.textContent='Le tableau comporte encore une ou plusieurs erreurs. Je vérifie tous mes sous-réseaux.';
+    return;
+   }
+   for(const inputs of entries)for(const {input} of inputs)input.disabled=true;
+   actions.remove();
+   root.append(make('p','pepette-success','✓ Bravo ! Mon tableau FLSM est terminé.'));
+   renderFlsmHosts(3);
+  });
+ }
 }
 
 function startPepette(){
@@ -417,7 +477,7 @@ function flsmHostButton(label,callback){
 }
 function renderFlsmHosts(level){
  flsmHostLevel=level;
- const exercise=$('pepette-exercise'),activePlan=level===2?mediumPlan:pepettePlan,prefix=activePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
+ const exercise=$('pepette-exercise'),activePlan=level===3?expertPlan:level===2?mediumPlan:pepettePlan,prefix=activePlan.prefix,exp=32-prefix,power=2**exp,result=usableHosts(prefix);
  let host=$('flsm-host-calculation');
  if(!host){host=document.createElement('section');host.id='flsm-host-calculation';host.className='card lesson-step';exercise.append(host);}
  host.replaceChildren();
@@ -447,7 +507,7 @@ function renderFlsmHosts(level){
   const success=flsmHostElement('p','pepette-success','Bravo ! Tu as trouvé '+result.toLocaleString('fr-FR')+' hôtes utilisables par sous-réseau.');
   work.append(success,flsmHostElement('p','','Tu peux donc attribuer une adresse IP à '+result.toLocaleString('fr-FR')+' équipements sur chaque sous-réseau.'));
   const actions=flsmHostElement('div','flsm-host-finish-actions');
-  const again=flsmHostButton('Nouvel exercice',level===2?startMedium:startPepette);again.classList.add('flsm-host-finish-primary');
+  const again=flsmHostButton('Nouvel exercice',level===3?startExpert:level===2?startMedium:startPepette);again.classList.add('flsm-host-finish-primary');
   const menu=flsmHostButton('Retour au menu',()=>{$('pepette-menu').click();});menu.classList.add('flsm-host-finish-secondary');
   actions.append(again,menu);work.append(actions);
  };
