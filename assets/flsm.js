@@ -479,6 +479,17 @@ function renderFlsmHosts(level){
 
 function setPepetteBit(input,on){input.value=on?'1':'';input.classList.toggle('is-one',on);input.setAttribute('aria-pressed',String(on));}
 function renderPepetteWorksheet(){
+ // Résultats pédagogiques persistants, indépendants de l'historique technique masqué.
+ const statement=$('pepette-statement');
+ for(const id of ['pepette-borrowed-result','pepette-cidr-result'])$(id)?.remove();
+ const showResult=(id,label,value)=>{
+  const row=document.createElement('div');row.id=id;
+  row.append(document.createTextNode(label+' : '));
+  const strong=document.createElement('strong');strong.textContent=value;row.append(strong);
+  statement.append(row);
+ };
+ if(pepetteStep>=1)showResult('pepette-borrowed-result','Nombre de bits empruntés',String(pepettePlan.prefix-pepettePlan.base.prefix));
+ if(pepetteStep>=2)showResult('pepette-cidr-result','Nouveau CIDR','/'+pepettePlan.prefix);
  const host=$('pepette-exercise');
  const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
  if(!active){$('pepette-progress').textContent='Dernière étape : calcul du nombre d’hôtes utilisables';renderFlsmHosts(1);return;}
