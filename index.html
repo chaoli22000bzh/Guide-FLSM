@@ -10,14 +10,14 @@
 .flsm-pepette-example-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}.flsm-pepette-example-grid>div{border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}.flsm-pepette-example-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}.flsm-pepette-example-row:last-child{border-bottom:0}.flsm-pepette-example-row code{background:#f8deb7;color:#713a00;padding:3px 8px;border-radius:4px;font-weight:700}.flsm-pepette-e select{display:block;margin:8px 0;max-width:160px}@media(max-width:520px){.flsm-pepette-example-grid{grid-template-columns:1fr}}
 .flsm-g-bilan-table table{width:100%;border-collapse:collapse;margin:10px 0 14px}.flsm-g-bilan-table th,.flsm-g-bilan-table td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}.flsm-g-bilan-table th{width:45%;font-weight:700}.flsm-g-bilan-table td{font-variant-numeric:tabular-nums}.flsm-g-bilan-table tr:last-child th,.flsm-g-bilan-table tr:last-child td{border-bottom:0}
 .pepette-training{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.pepette-training[hidden],#pepette-finish[hidden]{display:none}.pepette-training .pepette-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.pepette-training .pepette-row{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:9px}.pepette-training .pepette-octets{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}.pepette-training .pepette-octet{display:flex;gap:2px;align-items:center}.pepette-training .pepette-bit{width:24px;height:33px;padding:1px;text-align:center;font:inherit;border:1px solid var(--line);border-radius:3px;background:var(--bg,var(--panel));color:var(--ink)}.pepette-training .pepette-decimal{width:64px;padding:7px;text-align:center;font:inherit;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}.pepette-training .pepette-bit:focus,.pepette-training .pepette-decimal:focus{outline:2px solid #087dcc}.pepette-training .pepette-octet-error{outline:2px solid #c54b4b;outline-offset:3px;border-radius:3px}.pepette-training .pepette-valid{color:#168452;font-weight:700}.pepette-training .pepette-error{color:#b94a48;font-weight:700}@media(max-width:850px){.pepette-training .pepette-bit{width:20px;height:29px;font-size:12px}.pepette-training .pepette-octets{gap:6px}}\n.pepette-training .flsm-paper-d{overflow-x:auto;margin-top:12px}.pepette-training .flsm-paper-grid input.pepette-bit{display:block;width:100%;min-width:0;height:24px;padding:0;border:1px solid #3181ca;border-radius:2px;text-align:center;background:var(--panel);color:var(--ink);font-size:11px}.pepette-training .flsm-paper-grid input.pepette-decimal{width:90%;max-width:75px;height:24px;padding:0 2px}.pepette-training .flsm-paper-grid td.pepette-octet-error{background:#f7c9c9!important}.pepette-training .pepette-check{margin:10px 0}.pepette-training .flsm-paper-subnet{margin-top:8px}.pepette-history .pepette-completed{padding:9px 12px;margin:7px 0;background:var(--panel);border-color:var(--line)}.pepette-history .pepette-completed strong{color:#168452}.pepette-history .pepette-answer{font-weight:700;margin-left:5px}\n.pepette-intro{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:center;margin:12px 0}.pepette-statement{display:grid;gap:8px}.pepette-statement .pepette-address{font-size:1.12rem;font-weight:700}.pepette-statement .pepette-count{font-size:1.4rem;font-weight:800}.pepette-help{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}.pepette-help img{width:90px;height:90px;object-fit:cover;border-radius:50%}.pepette-help span{font-size:.85rem;color:var(--muted,var(--ink))}.pepette-binary-panel{padding:14px;border:1px solid var(--line);border-radius:9px;margin:12px 0}.pepette-binary-panel[hidden]{display:none}.pepette-binary-panel table{border-collapse:collapse;width:100%;text-align:center}.pepette-binary-panel td,.pepette-binary-panel th{border:1px solid var(--line);padding:5px}.pepette-binary-scroll{max-height:260px;overflow:auto;margin-top:10px}@media(max-width:550px){.pepette-intro{grid-template-columns:1fr}.pepette-help{flex-direction:row;flex-wrap:wrap;justify-content:center}}\n
-/* V0.1.89 : enonce compact et aide sur la droite */
+/* V0.1.90 : enonce compact et aide sur la droite */
 #pepette-training .pepette-intro{display:grid!important;grid-template-columns:minmax(0,1fr) 230px!important;align-items:center;column-gap:18px;min-height:0}
 #pepette-training .pepette-statement{grid-column:1;min-width:0}
 #pepette-training .pepette-help{grid-column:2;align-self:center;justify-self:center;margin:0}
 #pepette-training .flsm-paper-grid input.pepette-bit{touch-action:none;user-select:none;cursor:pointer;caret-color:transparent}
 @media(max-width:550px){#pepette-training .pepette-intro{grid-template-columns:1fr!important}#pepette-training .pepette-help{grid-column:1}}
 
-/* V0.1.89 : alignement compact et cellules du manuel IPv4 */
+/* V0.1.90 : alignement compact et cellules du manuel IPv4 */
 #pepette-training .pepette-intro{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:20px!important;width:100%!important;margin:8px 0 12px!important}
 #pepette-training .pepette-statement{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;gap:7px!important}
 #pepette-training .pepette-help{flex:0 0 220px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;margin:0!important}
@@ -26,7 +26,7 @@
 #pepette-training .flsm-paper-grid input.pepette-bit-toggle:focus-visible{outline:2px solid #ff9c2a;outline-offset:-2px}
 @media(max-width:550px){#pepette-training .pepette-intro{flex-direction:column!important;align-items:stretch!important}#pepette-training .pepette-help{flex-basis:auto!important}}
 
-/* V0.1.89 : actions de fin harmonisées avec les boutons du questionnaire */
+/* V0.1.90 : actions de fin harmonisées avec les boutons du questionnaire */
 .flsm-host-finish-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;align-items:center}
 .flsm-host-finish-actions button{appearance:none;border:2px solid #245ef0;border-radius:9px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer;min-height:46px;transition:background-color .15s,color .15s,transform .15s}
 .flsm-host-finish-actions button:hover{transform:translateY(-1px)}
@@ -35,7 +35,7 @@
 body.dark .flsm-host-finish-actions .flsm-host-finish-secondary{color:#8db5ff;border-color:#8db5ff}
 @media(max-width:550px){.flsm-host-finish-actions button{width:100%}}
 
-/* V0.1.89 - Boutons d'action FLSM alignés sur le style C² / guide IPv4.
+/* V0.1.90 - Boutons d'action FLSM alignés sur le style C² / guide IPv4.
    Les cellules binaires et les sélecteurs de difficulté ne sont pas concernés. */
 #pepette-training button:not(.training-difficulty):not(.pepette-bit-toggle),
 #go-flsm-training,
@@ -74,22 +74,25 @@ body.dark .flsm-host-finish-actions .flsm-host-finish-secondary{color:#8db5ff;bo
 body.dark #pepette-training .flsm-host-finish-actions .flsm-host-finish-secondary{color:#93c5fd;border-color:#93c5fd}
 
 
-/* V0.1.89 : repérage renforcé des sous-réseaux et validation compacte. */
+/* V0.1.90 : repérage renforcé des sous-réseaux et validation compacte. */
 #pepette-training .flsm-paper-subnet-title .flsm-subnet-number{font-weight:900;font-size:1.12em}
 #pepette-training .flsm-paper-subnet-title .flsm-subnet-validated{color:#16a34a;font-size:1.15em;font-weight:900;margin-left:7px}
 
-/* V0.1.89 : validation compacte des deux calculs du niveau intermédiaire. */
+/* V0.1.90 : validation compacte des deux calculs du niveau intermédiaire. */
 #pepette-training .flsm-prefix-validated{color:#16a34a;font-weight:900;font-size:1.3rem;line-height:1;display:inline-flex;align-items:center;margin-left:2px}
 
-/* V0.1.89 : l'aide de Pépette est réservée au niveau guidé. */
+/* V0.1.90 : l'aide de Pépette est réservée au niveau guidé. */
 #pepette-training .pepette-help[hidden]{display:none!important}
 #pepette-training .pepette-intro:has(.pepette-help[hidden]){grid-template-columns:minmax(0,1fr)}
 
-/* V0.1.89 : confirmation compacte du calcul des hôtes. */
+/* V0.1.90 : confirmation compacte du calcul des hôtes. */
 #pepette-training .flsm-host-validated{display:inline-flex;align-items:center;color:#16a34a;font-size:1.35rem;font-weight:900;line-height:1;margin:4px 0}
 
-/* V0.1.89 : priorité à l'attribut hidden sur les commandes de validation. */
+/* V0.1.90 : priorité à l'attribut hidden sur les commandes de validation. */
 #pepette-training .pepette-actions[hidden]{display:none!important}
+
+/* V0.1.90 : version discrète en pied de page. */
+.flsm-version-footer{max-width:1250px;margin:18px auto 8px;padding:0 20px;text-align:right;font-size:.72rem;color:var(--muted);opacity:.72}
 </style><style>
 /* Partie A : présentation compacte et adaptée aux petits écrans. */
 #fiche .subfold:first-of-type .lesson-step>p{margin:.35rem 0;line-height:1.45}
@@ -237,7 +240,7 @@ body.dark .flsm-paper-address .flsm-paper-initial-bar{box-shadow:inset -3px 0 #3
 body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff9b21}
 @media(max-width:850px) and (orientation:landscape){.flsm-paper-d{min-width:710px}.flsm-paper-grid .flsm-paper-label{width:120px;padding-left:5px;font-size:10px}}
 </style></head>
-<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small><span class="version-tag">V0.1.89</span></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" role="link" aria-disabled="true" title="PDF (à venir)" aria-label="PDF (à venir)"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
+<body class="flsm-standalone"><header class="top"><a class="brand" href="#accueil"><span class="logo">/27</span><span class="guide-brand"><small>Guide pas à pas</small></span></a><div class="header-guide-title">Manuel de découpage en sous-réseaux FLSM</div><div class="actions"><button id="theme" type="button" title="Changer de thème">◐ Thème</button><a class="pdf pdf-icon-button" href="docs/manuel-flsm.pdf" target="_blank" rel="noopener" title="Télécharger le manuel FLSM (PDF)" aria-label="Télécharger le manuel FLSM au format PDF"><span class="pdf-icon" aria-hidden="true">PDF</span></a></div></header>
 <div class="layout"><div class="mobile-orientation-tip" role="note">Pour mieux lire les tableaux, tourne ton téléphone en mode paysage. Tu peux aussi continuer en portrait.</div><main>
 <section id="accueil" class="flsm-intro"><div class="flsm-orientation-tip" role="note">Pour un meilleur confort de lecture, passe ton appareil en mode paysage. Tu peux aussi continuer en mode portrait.</div><div class="flsm-example"><span class="flsm-example-label">MON EXEMPLE</span><div class="flsm-address-grid"><span class="flsm-row-label">Réseau initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">22<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">160<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">0</span><span class="flsm-prefix">/20</span><span class="flsm-row-label">Broadcast initial</span><span class="flsm-octet octet-1">172<span class="flsm-dot">.</span></span><span class="flsm-octet octet-2">22<span class="flsm-dot">.</span></span><span class="flsm-octet octet-3">175<span class="flsm-dot">.</span></span><span class="flsm-octet octet-4">255</span><span class="flsm-empty">/20</span></div></div><p>Je connais l’adresse réseau initiale, son préfixe et son broadcast. Je vais apprendre à découper ce réseau en plusieurs sous-réseaux de même taille.</p></section>
 <details class="chapter" id="fiche"><summary><span class="learn-icon icon-binary" aria-hidden="true">01</span> Je découpe mon réseau</summary><div class="chapter-body">
@@ -321,4 +324,4 @@ body.dark .flsm-paper-address .flsm-paper-subnet-bar{box-shadow:inset -3px 0 #ff
 <div class="chapter-next"><p><strong>J'ai terminé la partie droite de ma fiche.</strong> Je peux maintenant choisir un niveau pour m'entraîner.</p><button type="button" id="go-flsm-training">Passer aux exercices</button></div>
 </div></details>
 <details class="chapter training-highlight" id="training-fold"><summary><span class="learn-icon icon-finish" aria-hidden="true">🏁</span> Je teste mes connaissances</summary><div class="chapter-body"><div class="training-setup"><h3 class="flsm-difficulty-title">Quelle difficulté je choisis ?</h3><div class="training-difficulties" role="group" aria-label="Choix de la difficulté"><button type="button" class="training-difficulty" data-training-difficulty="1" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span></span><span class="difficulty-description"><strong>Avec Pépette</strong><small>Exercice simple et guidé</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="2" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span></span><span class="difficulty-description"><strong>Je me débrouille</strong><small>Difficulté intermédiaire</small></span></button><button type="button" class="training-difficulty" data-training-difficulty="3" aria-pressed="false"><span class="difficulty-bars" aria-hidden="true"><span></span><span></span><span></span></span><span class="difficulty-description"><strong>Je relève le défi</strong><small>Réseau et découpage plus complexes</small></span></button></div><div class="training-launch"><button type="button" id="launch-training" disabled>Je choisis ma difficulté</button><p id="training-launch-info" class="training-launch-info" aria-live="polite"></p></div></div><div id="pepette-training" class="pepette-training" hidden><h3 id="flsm-exercise-title">Avec Pépette : mon exercice FLSM</h3><div class="pepette-intro"><div id="pepette-statement" class="pepette-statement"></div><div class="pepette-help"><img src="https://raw.githubusercontent.com/chaoli22000bzh/Manuel-Adressage-IPv4/main/assets/pepette.webp" alt="Pépette" loading="lazy"><button type="button" id="pepette-binary-toggle" aria-expanded="false" aria-controls="pepette-binary-panel">Voir le coup de patte</button><span>Aide pour convertir en binaire</span></div></div><div id="pepette-binary-panel" class="pepette-binary-panel" hidden><h4>Je découvre le binaire</h4><p>Pour convertir un nombre en binaire, je cherche quelles valeurs je dois additionner parmi les poids des huit bits.</p><p><strong>Exemple : 10 = 8 + 2 = 00001010</strong></p><table><thead><tr><th>128</th><th>64</th><th>32</th><th>16</th><th>8</th><th>4</th><th>2</th><th>1</th></tr></thead><tbody><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td></tr></tbody></table><details><summary>Consulter le tableau de conversion de 0 à 255</summary><div class="pepette-binary-scroll"><table><thead><tr><th>Décimal</th><th>Binaire (8 bits)</th></tr></thead><tbody id="pepette-binary-rows"></tbody></table></div></details></div><p id="pepette-progress" class="hint"></p><div id="pepette-exercise"></div><p id="pepette-feedback" role="status" aria-live="polite"></p><div id="pepette-finish" hidden><strong>Bravo, j'ai terminé mon exercice !</strong><div class="pepette-actions"><button type="button" id="pepette-again">Nouvelle adresse</button><button type="button" id="pepette-menu">Retour à « Je teste mes connaissances »</button></div></div></div></div></details>
-</main></div><script type="module" src="assets/flsm.js?v=0.1.89"></script></body></html>
+</main></div><footer class="flsm-version-footer" aria-label="Version du guide">V0.1.90</footer><script type="module" src="assets/flsm.js?v=0.1.90"></script></body></html>
