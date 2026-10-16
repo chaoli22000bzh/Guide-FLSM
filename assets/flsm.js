@@ -483,21 +483,7 @@ function renderPepetteWorksheet(){
  const tasks=pepetteTasks(),active=tasks[pepetteStep],base=pepettePlan.base;
  if(!active){$('pepette-progress').textContent='Dernière étape : calcul du nombre d’hôtes utilisables';renderFlsmHosts(1);return;}
  host.replaceChildren();
- $('pepette-progress').textContent='Étape '+(pepetteStep+1)+' sur '+tasks.length+' : '+active.label;
- const history=document.createElement('div');history.className='pepette-history';
- for(let i=0;i<pepetteStep;i++){
-  const previous=tasks[i],line=document.createElement('div');
-  line.className='pepette-row pepette-completed';
-  const title=document.createElement('strong');title.textContent='✓ Étape '+(i+1)+' : '+previous.label;
-  line.append(title);
-  if(previous.kind==='number'){
-   const answer=document.createElement('span');answer.className='pepette-answer';
-   answer.textContent=' = '+(previous.label.includes('CIDR')?'/':'')+previous.expected;
-   line.append(answer);
-  }
-  history.append(line);
- }
- host.append(history);
+ $('pepette-progress').textContent=''; // La progression technique reste interne, sans compteur visible pour l'élève.
  const prompt=document.createElement('div');prompt.className='pepette-row';
  prompt.append(Object.assign(document.createElement('strong'),{textContent:'Je complète : '+active.label}));
  const feedback=$('pepette-feedback');feedback.textContent='';feedback.className='';
