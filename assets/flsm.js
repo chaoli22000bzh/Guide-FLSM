@@ -246,7 +246,9 @@ function mediumExercise(){
 // Niveau expert : cinq à seize sous-réseaux, sans guidage et validation globale.
 function expertExercise(){
  for(let attempt=0;attempt<2000;attempt++){
-  const count=5+pepetteRandom(12),borrowed=Math.ceil(Math.log2(count));
+  const count=5+pepetteRandom(11); // 5 à 15 sous-réseaux demandés
+  if([2,4,8,16].includes(count))continue;
+  const borrowed=Math.ceil(Math.log2(count));
   const prefix=9+pepetteRandom(18);
   if(prefix+borrowed>29||prefix%8===0||(prefix+borrowed)%8===0)continue;
   // Favoriser les CIDR traversant une limite d'octet.
