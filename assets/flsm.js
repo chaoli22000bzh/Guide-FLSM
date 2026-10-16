@@ -274,7 +274,7 @@ function renderMedium(){
  const cidr=make('input','pepette-decimal');cidr.type='number';cidr.min='1';cidr.max='30';cidr.setAttribute('aria-label','Nouveau CIDR');
  countRow.append(cidr);
  const checkPrefix=make('button','pepette-check','Vérifier mes calculs');checkPrefix.type='button';countRow.append(checkPrefix);
- const prefixFeedback=make('p','');countRow.append(prefixFeedback);root.append(countRow);
+ const prefixFeedback=make('p','');prefixFeedback.setAttribute('aria-live','polite');root.append(countRow);
  const frame=make('div','flsm-paper-d');
  const ref=make('table','flsm-paper-grid flsm-paper-reference'),head=make('tbody');
  const oct=make('tr');oct.append(make('th','flsm-paper-label','OCTETS'));
@@ -359,8 +359,12 @@ function renderMedium(){
   if(Number(borrowed.value)!==plan.prefix-base.prefix||Number(cidr.value)!==plan.prefix){
    prefixFeedback.className='pepette-error';prefixFeedback.textContent='Je vérifie le nombre de bits empruntés et le nouveau CIDR.';return;
   }
-  borrowed.disabled=true;cidr.disabled=true;checkPrefix.disabled=true;
-  prefixFeedback.className='pepette-success';prefixFeedback.textContent='✓ Calculs validés. Je complète mes sous-réseaux.';
+  borrowed.disabled=true;cidr.disabled=true;
+  checkPrefix.remove();
+  const tick=make('span','flsm-prefix-validated','✓');
+  tick.setAttribute('role','status');tick.setAttribute('aria-label','Calculs validés');
+  tick.title='Calculs validés';countRow.append(tick);
+  prefixFeedback.textContent='';
   blocks.forEach(block=>block.hidden=false);
  });
 }
