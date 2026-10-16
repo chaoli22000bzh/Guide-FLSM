@@ -241,7 +241,19 @@ function mediumExercise(){
  }
  throw new Error('Impossible de générer un exercice intermédiaire.');
 }
+function setFlsmTrainingPresentation(level){
+ const title=$('flsm-exercise-title');
+ if(title)title.textContent=difficultyNames[String(level)]+' : mon exercice FLSM';
+ const help=document.querySelector('#pepette-training .pepette-help');
+ if(help)help.hidden=level!==1;
+ const panel=$('pepette-binary-panel');
+ if(panel){panel.hidden=true;}
+ const toggle=$('pepette-binary-toggle');
+ if(toggle){toggle.setAttribute('aria-expanded','false');toggle.textContent='Voir le coup de patte';}
+ $('pepette-progress').textContent='';
+}
 function startMedium(){
+ setFlsmTrainingPresentation(2);
  try{
   mediumPlan=mediumExercise();mediumValidated=0;mediumInputs=[];flsmHostStep=0;flsmHostFeedback='';
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
@@ -262,9 +274,9 @@ function startMedium(){
 function renderMedium(){
  const root=$('pepette-exercise');root.replaceChildren();
  const plan=mediumPlan,base=plan.base;
- $('pepette-progress').textContent='Je me débrouille : '+mediumValidated+' sous-réseau(x) validé(s) sur '+plan.concernedCount;
+ $('pepette-progress').textContent='';
  const make=(tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el;};
- const heading=make('h3','','Je me débrouille : mon exercice FLSM');root.append(heading);
+
  const intro=make('p','','Je complète les 32 bits et les adresses décimales de chaque sous-réseau. Je vérifie chaque bloc complet, sans correction case par case.');
  root.append(intro);
  const countRow=make('div','pepette-row');
@@ -347,7 +359,7 @@ function renderMedium(){
    controls.remove();
    for(const {input} of inputs)input.disabled=true;
    verify.disabled=true;mediumValidated++;
-   $('pepette-progress').textContent='Je me débrouille : '+mediumValidated+' sous-réseau(x) validé(s) sur '+plan.concernedCount;
+   $('pepette-progress').textContent='';
    if(mediumValidated===plan.concernedCount){
     const success=make('p','pepette-success','✓ Bravo ! Mon tableau FLSM est terminé.');root.append(success);
     renderFlsmHosts(2);
@@ -370,6 +382,7 @@ function renderMedium(){
 }
 
 function startPepette(){
+ setFlsmTrainingPresentation(1);
  try{
   pepettePlan=pepetteExercise();pepetteStep=0;flsmHostStep=0;flsmHostFeedback='';
   $('pepette-training').hidden=false;$('pepette-finish').hidden=true;
