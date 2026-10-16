@@ -342,6 +342,7 @@ function renderSubnetExercise(level){
  }
  ref.append(head);frame.append(ref);root.append(frame);
  const blocks=[],entries=[];
+ let expertActions=null;
  const shownIndices=level===3&&plan.concernedCount>6
   ?[0,1,2,plan.concernedCount-3,plan.concernedCount-2,plan.concernedCount-1]
   :Array.from({length:plan.concernedCount},(_,i)=>i);
@@ -422,7 +423,7 @@ function renderSubnetExercise(level){
   tick.title='Calculs validés';countRow.append(tick);
   prefixFeedback.textContent='';
   blocks.forEach(block=>block.hidden=false);
-  if(level===3)actions.hidden=false;
+  if(level===3&&expertActions)expertActions.hidden=false;
  });
  if(level===3){
   const actions=make('div','pepette-actions');
@@ -431,6 +432,7 @@ function renderSubnetExercise(level){
   const globalFeedback=make('p','');globalFeedback.setAttribute('aria-live','polite');
   actions.append(verifyAll,globalFeedback);root.append(actions);
   actions.hidden=true;
+  expertActions=actions;
   verifyAll.addEventListener('click',()=>{
    const valid=entries.every(inputs=>inputs.every(({input,expected,binary})=>
     binary?(input.value==='1'?'1':'0')===expected:input.value.trim()!==''&&Number(input.value)===Number(expected)
