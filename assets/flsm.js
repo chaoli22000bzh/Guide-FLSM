@@ -175,7 +175,17 @@ launchTraining?.addEventListener('click',()=>{
 });
 
 const goFlsmTraining=$('go-flsm-training');
-goFlsmTraining?.addEventListener('click',()=>{const section=$('training-fold');section.open=true;section.scrollIntoView({behavior:'smooth',block:'start'});});
+goFlsmTraining?.addEventListener('click',()=>{
+ const section=$('training-fold');if(!section)return;
+ // Ouvrir également les éventuels volets parents et refermer le chapitre précédent.
+ for(let parent=section.parentElement;parent;parent=parent.parentElement){
+  if(parent.tagName==='DETAILS')parent.open=true;
+ }
+ section.open=true;
+ const summary=section.querySelector('summary');
+ (summary||section).scrollIntoView({behavior:'smooth',block:'start'});
+ (summary||section).focus?.({preventScroll:true});
+});
 
  
 // Parcours Avec Pépette : tirage indépendant, sans historique ni liste ordonnée.
